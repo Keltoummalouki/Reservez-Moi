@@ -1,0 +1,58 @@
+services:
+  db:
+    container_name: postgres_container
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: Reservez-Moi
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - laravel_network
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4:9.0
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root_password
+    ports:
+      - "8082:80"
+    depends_on:
+      - db
+    networks:
+      - laravel_network
+
+  app:
+    build:
+      context: ./Docker
+      dockerfile: Dockerfile
+    container_name: Reservez-Moi
+    restart: always
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: Reservez-Moi
+      DB_USERNAME: postgres
+      DB_PASSWORD: root_password
+    networks:
+      - laravel_network
+
+volumes:
+  db_data:
+
+networks:
+  laravel_network:
