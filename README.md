@@ -75,13 +75,6 @@ $ docker-compose exec app php artisan migrate --seed
 Ouvrez votre navigateur et accédez à `http://localhost`
 ```
 
-## User Stories
-
-1. **Réserver un Service** : Recherche, sélection et confirmation de réservation.
-2. **Gestion des Disponibilités** : Affichage en temps réel des créneaux disponibles.
-3. **Suivi des Réservations** : Consultation, modification et annulation des réservations.
-4. **Notifications et Rappels** : Rappels automatiques avant les rendez-vous.
-
 ---
 💡 **Contribuez** : N'hésitez pas à proposer des améliorations via des pull requests !
 📧 **Contact** : Pour toute question, contactez-nous sur [email@example.com](mailto:keltoummalouki@gmail.com).
