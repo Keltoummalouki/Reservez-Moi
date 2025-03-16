@@ -1,5 +1,3 @@
-**# Projet fil rouge "Reservez-Moi"
-
 ## Contexte du Projet
 
 “Reservez-moi” est une application web intuitive et dynamique permettant aux utilisateurs de réserver des services dans divers secteurs. L'objectif principal est d'offrir une interface unifiée et adaptée aux besoins de chaque secteur tout en garantissant une expérience utilisateur fluide et efficace.
