@@ -1,166 +1,61 @@
-## Contexte du Projet
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
-“Reservez-moi” est une application web intuitive et dynamique permettant aux utilisateurs de réserver des services dans divers secteurs. L'objectif principal est d'offrir une interface unifiée et adaptée aux besoins de chaque secteur tout en garantissant une expérience utilisateur fluide et efficace.
+<p align="center">
+<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
+</p>
 
-## Secteurs Concernés
+## About Laravel
 
-1. **Doctors & Hospitals** : Réservation de consultations médicales et hospitalières.
-2. **Services juridiques** : Prise de rendez-vous avec des avocats ou notaires.
-3. **Beauty Salon & Spas** : Planification de soins de beauté et de bien-être.
-4. **Hotel** : Réservation de chambres et services d’hébergement.
-5. **Restaurant** : Réservation de tables avec gestion des horaires.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## Objectifs du Projet
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-- Permettre aux utilisateurs de rechercher, sélectionner et réserver un service dans le secteur de leur choix.
-- Fournir une interface utilisateur intuitive avec des formulaires dynamiques adaptés à chaque secteur.
-- Intégrer un système de gestion des disponibilités en temps réel.
-- Sauvegarder les données des utilisateurs pour un suivi et une réutilisation future.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Fonctionnalités Clés
+## Learning Laravel
 
-### 1. Interface Utilisateur et Formulaires Dynamiques
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-- Formulaires personnalisés par secteur :
-    - **Doctors & Hospitals** : Choix du praticien, spécialité, date, et heure.
-    - **Services juridiques** : Sélection du domaine juridique (e.g., divorce, droit immobilier), choix du professionnel et horaires.
-    - **Beauty Salon & Spas** : Liste des soins (e.g., massage, coupe, manucure) et gestion des durées.
-    - **Hotel** : Réservation de chambres avec choix des équipements (lit supplémentaire, petit-déjeuner).
-    - **Restaurant** : Gestion des tables, nombre de convives et préférences alimentaires.
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### 2. Recherche et Filtrage
+## Laravel Sponsors
 
-- Barre de recherche avancée avec des filtres adaptés (localisation, disponibilité, prix, type de service).
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
 
-### 3. Gestion des Disponibilités
+### Premium Partners
 
-- Synchronisation en temps réel des disponibilités des professionnels ou des services.
-- Mise à jour automatique des plages horaires disponibles.
+- **[Vehikl](https://vehikl.com/)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Cubet Techno Labs](https://cubettech.com)**
+- **[Cyber-Duck](https://cyber-duck.co.uk)**
+- **[Many](https://www.many.co.uk)**
+- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
+- **[DevSquad](https://devsquad.com)**
+- **[OP.GG](https://op.gg)**
 
-### 4. Authentification et Gestion des Comptes
+## Contributing
 
-- Inscription et connexion utilisateur avec validation des e-mails.
-- Profil utilisateur pour la gestion des réservations passées et futures.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-### 5. Notifications et Rappels
+## Code of Conduct
 
-- Envoi d’e-mails ou SMS pour confirmer les réservations et rappeler les rendez-vous.
-- Alertes en cas de modification ou d’annulation.
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-### 6. Sauvegarde des Données
+## Security Vulnerabilities
 
-- Utilisation de localStorage pour sauvegarder les données temporaires.
-- Gestion des données via une base de données centralisée.
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-### 7. Paiements en Ligne (Bonus)
+## License
 
-- Intégration de solutions de paiement sécurisées pour certains secteurs (e.g., acompte pour les salons, prépaiement pour les hôtels).
-
-### 8. Responsive Design
-
-- Interface adaptée aux différentes tailles d’écran (desktop, tablette, mobile).
-
-## Technologies Requises
-
-- **Frontend** : HTML, CSS, JavaScript (ou framework JS comme React ou Vue.js pour des interactions avancées).
-- **Backend** : Laravel (PHP) pour la gestion des données.
-- **Base de Données** : PostgreSQL pour le stockage des informations utilisateurs et réservations.
-- **Hébergement** : Docker pour la conteneurisation et déploiement sur une plateforme cloud (e.g., AWS, Heroku, ou Netlify).
-
-## Installation et Déploiement
-
-### Prérequis
-
-- Docker installé sur votre machine.
-- Git pour cloner le dépôt.
-
-### Instructions
-
-1. Clonez le dépôt GitHub :
-    ```bash
-    git clone https://github.com/username/reservez-moi.git
-    cd reservez-moi
-    ```
-
-2. Copiez le fichier `.env.example` en `.env` et configurez les variables d'environnement nécessaires.
-
-3. Construisez et démarrez les conteneurs Docker :
-    ```bash
-    docker-compose up -d
-    ```
-
-4. Installez les dépendances du projet :
-    ```bash
-    docker-compose exec app composer install
-    docker-compose exec app npm install
-    docker-compose exec app npm run dev
-    ```
-
-5. Générez la clé de l'application Laravel :
-    ```bash
-    docker-compose exec app php artisan key:generate
-    ```
-
-6. Exécutez les migrations de base de données et les seeders :
-    ```bash
-    docker-compose exec app php artisan migrate --seed
-    ```
-
-7. Accédez à l'application via votre navigateur à l'adresse `http://localhost`.
-
-## User Stories
-
-### 1. Réserver un Service
-
-En tant qu’utilisateur, je souhaite pouvoir rechercher et réserver un service dans le secteur de mon choix.
-
-**Critères d’acceptation :**
-
-- Je peux rechercher un professionnel ou un service par secteur et par localisation.
-- Je peux remplir un formulaire de réservation.
-- Je reçois une confirmation de réservation par e-mail.
-
-### 2. Gestion des Disponibilités
-
-En tant qu’utilisateur, je souhaite voir les disponibilités en temps réel pour choisir le meilleur horaire.
-
-**Critères d’acceptation :**
-
-- Les plages horaires disponibles sont affichées de manière claire.
-- Les horaires sont mis à jour en temps réel en fonction des réservations.
-
-### 3. Historique et Suivi des Réservations
-
-En tant qu’utilisateur, je souhaite pouvoir consulter l’historique de mes réservations et suivre celles à venir.
-
-**Critères d’acceptation :**
-
-- Une section « Mes Réservations » affiche les réservations passées et futures.
-- Je peux annuler ou modifier une réservation.
-
-### 4. Notifications et Rappels
-
-En tant qu’utilisateur, je souhaite recevoir des rappels pour ne pas oublier mes réservations.
-
-**Critères d’acceptation :**
-
-- Je reçois une notification de rappel avant chaque réservation.
-- Les rappels contiennent tous les détails nécessaires.
-
-## Livrables
-
-1. **Scrum Board** : Gestion des User Stories et des tâches associées.
-2. **Dépôt GitHub** contenant :
-    - Code source complet.
-    - Fichier README expliquant l’installation, les fonctionnalités et les technologies utilisées.
-3. **Lien vers le site web hébergé**.
-4. **Documentation utilisateur** pour expliquer le fonctionnement de l’application.
-
-## Critères de Performance
-
-- Interface utilisateur fluide et intuitive.
-- Validation efficace des champs des formulaires.
-- Synchronisation des disponibilités en temps réel.
-- Fonctionnalité de sauvegarde et de chargement fiable.
-- Notifications et rappels ponctuels.
-- Adaptabilité aux différents appareils (responsive design).**
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

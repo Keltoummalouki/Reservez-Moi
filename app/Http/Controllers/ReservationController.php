@@ -1,0 +1,213 @@
+<?php
+// app/Http/Controllers/ReservationController.php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Service;
+use App\Models\Reservation;
+use App\Models\Availability;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\ReservationCreated;
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Services\ReservationService;
+
+class ReservationController extends Controller
+{
+    protected $reservationService;
+    
+    public function __construct(ReservationService $reservationService)
+    {
+        $this->middleware(['auth', 'role:Client']);
+        $this->reservationService = $reservationService;
+    }
+
+    /**
+     * Affiche le formulaire de réservation avec les créneaux disponibles
+     *
+     * @param int $serviceId
+     * @return \Illuminate\View\View
+     */
+    public function showForm($serviceId)
+    {
+        // Récupérer le service et vérifier qu'il est disponible
+        $service = Service::where('is_available', true)->findOrFail($serviceId);
+        
+        // Récupérer les dates disponibles pour les 30 prochains jours
+        $startDate = Carbon::now();
+        $endDate = Carbon::now()->addDays(30);
+        $availableDates = [];
+        
+        // Pour chaque jour, vérifier s'il y a des créneaux disponibles
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dateString = $date->format('Y-m-d');
+            $slots = Availability::getAvailableSlots($serviceId, $dateString);
+            
+            if (count($slots) > 0) {
+                $availableDates[] = [
+                    'date' => $dateString,
+                    'formatted' => $date->format('d/m/Y'),
+                    'day_name' => $date->translatedFormat('l'),
+                    'slots_count' => count($slots)
+                ];
+            }
+        }
+        
+        return view('client.reserve_form', compact('service', 'availableDates'));
+    }
+
+    /**
+     * Récupère les créneaux disponibles pour une date spécifique (AJAX)
+     *
+     * @param Request $request
+     * @param int $serviceId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTimeSlots(Request $request, $serviceId)
+    {
+        $validated = $request->validate([
+            'date' => 'required|date|after_or_equal:today',
+        ]);
+        
+        // Récupérer le service
+        $service = Service::findOrFail($serviceId);
+        
+        // Obtenir les créneaux disponibles
+        $slots = Availability::getAvailableSlots($serviceId, $validated['date']);
+        
+        // Formatter les créneaux pour l'affichage
+        $formattedSlots = [];
+        foreach ($slots as $slot) {
+            $startTime = Carbon::parse($slot['start_time'])->format('H:i');
+            $endTime = Carbon::parse($slot['end_time'])->format('H:i');
+            
+            $formattedSlots[] = [
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'formatted' => $startTime . ' - ' . $endTime,
+                'available_spots' => $slot['available_spots'],
+                'value' => $validated['date'] . ' ' . $startTime,
+            ];
+        }
+        
+        return response()->json([
+            'slots' => $formattedSlots,
+            'has_slots' => count($formattedSlots) > 0,
+        ]);
+    }
+
+    /**
+     * Traite la demande de réservation
+     *
+     * @param Request $request
+     * @param int $serviceId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function reserve(Request $request, $serviceId)
+    {
+        $request->validate([
+            'reservation_date' => 'required|date|after:now',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $reservation = $this->reservationService->makeReservation($serviceId, $request->all());
+            return redirect()->route('client.reservations.paypal', compact('reservation'))
+                ->with('success', 'Réservation effectuée avec succès ! Veuillez procéder au paiement via PayPal.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Annuler une réservation
+     *
+     * @param Reservation $reservation
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function cancel(Reservation $reservation)
+    {
+        // Vérifier que l'utilisateur est bien le propriétaire de la réservation
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Vérifier si la réservation peut être annulée
+        if (!$reservation->canBeCancelled()) {
+            return redirect()->route('client.reservations')
+                ->with('error', 'Cette réservation ne peut pas être annulée.');
+        }
+
+        // Annuler la réservation
+        $reservation->markAsCancelled('Annulée par le client');
+
+        return redirect()->route('client.reservations')
+            ->with('success', 'Votre réservation a été annulée avec succès.');
+    }
+
+    /**
+     * Rediriger vers PayPal pour le paiement
+     *
+     * @param Reservation $reservation
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function paypal(Reservation $reservation)
+    {
+        // Vérifier que l'utilisateur est bien le propriétaire de la réservation
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Vérifier si la réservation est en attente de paiement
+        if (!$reservation->isPendingPayment()) {
+            return redirect()->route('client.reservations')
+                ->with('error', 'Cette réservation ne nécessite pas de paiement.');
+        }
+
+        // Initialiser le paiement PayPal
+        return app(PayPalController::class)->createPayment(new Request([
+            'reservation_id' => $reservation->id,
+            'amount' => $reservation->amount
+        ]));
+    }
+
+    /**
+     * Callback de succès PayPal
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function paypalSuccess(Request $request)
+    {
+        return app(PayPalController::class)->success($request);
+    }
+
+    /**
+     * Callback d'annulation PayPal
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function paypalCancel()
+    {
+        return app(PayPalController::class)->cancel();
+    }
+
+    /**
+     * Afficher la liste des réservations de l'utilisateur
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $reservations = Auth::user()->reservations()
+            ->with(['service.provider'])
+            ->latest()
+            ->paginate(10);
+
+        return view('client.reservations', compact('reservations'));
+    }
+}
