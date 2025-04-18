@@ -118,6 +118,10 @@
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
+                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-clock text-primary-300 w-5"></i>
+                    <span>Disponibilités</span>
+                </a>
                 <a href="{{ route('provider.reservations') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
@@ -181,10 +185,10 @@
                         </div>
                     </div>
                     <div class="mt-4 text-sm">
-                        <span class="text-green-600 font-medium flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i> 12%
-                        </span>
-                        <span class="text-gray-500">par rapport au mois dernier</span>
+                        <a href="{{ route('provider.services') }}" class="text-primary-600 font-medium flex items-center hover:underline">
+                            <span>Gérer mes services</span>
+                            <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
                     </div>
                 </div>
                 
@@ -199,10 +203,10 @@
                         </div>
                     </div>
                     <div class="mt-4 text-sm">
-                        <span class="text-green-600 font-medium flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i> 8%
-                        </span>
-                        <span class="text-gray-500">par rapport au mois dernier</span>
+                        <a href="{{ route('provider.reservations') }}" class="text-primary-600 font-medium flex items-center hover:underline">
+                            <span>Voir les réservations</span>
+                            <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
                     </div>
                 </div>
                 
@@ -217,10 +221,10 @@
                         </div>
                     </div>
                     <div class="mt-4 text-sm">
-                        <span class="text-red-600 font-medium flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i> 5%
-                        </span>
-                        <span class="text-gray-500">par rapport au mois dernier</span>
+                        <a href="{{ route('provider.reservations') }}" class="text-primary-600 font-medium flex items-center hover:underline">
+                            <span>Gérer les attentes</span>
+                            <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
                     </div>
                 </div>
                 
@@ -235,10 +239,10 @@
                         </div>
                     </div>
                     <div class="mt-4 text-sm">
-                        <span class="text-green-600 font-medium flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i> 15%
-                        </span>
-                        <span class="text-gray-500">par rapport au mois dernier</span>
+                        <a href="#" class="text-primary-600 font-medium flex items-center hover:underline">
+                            <span>Voir les revenus</span>
+                            <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -262,6 +266,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservations</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disponibilités</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -301,10 +306,19 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $service->reservations_count ?? 0 }}
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $service->availabilities_count ?? 0 }}
+                                        <a href="{{ route('provider.availability.index', $service->id) }}" class="ml-2 text-xs text-primary-600 hover:text-primary-800">
+                                            <i class="fas fa-calendar"></i> Gérer
+                                        </a>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
                                             <a href="{{ route('provider.services.edit', $service->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
                                                 <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ route('provider.availability.index', $service->id) }}" class="text-blue-600 hover:text-blue-900" title="Disponibilités">
+                                                <i class="fas fa-clock"></i>
                                             </a>
                                             <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">
                                                 @csrf
@@ -318,7 +332,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                         <div class="flex flex-col items-center py-6">
                                             <div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-4">
                                                 <i class="fas fa-clipboard-list text-2xl"></i>
@@ -338,7 +352,7 @@
             </div>
             
             <!-- Recent Reservations Section -->
-            <div>
+            <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">Réservations récentes</h2>
                     <a href="{{ route('provider.reservations') }}" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
@@ -414,7 +428,8 @@
                                             @if($reservation->status == 'pending')
                                                 <form action="{{ route('provider.reservations.confirm', $reservation->id) }}" method="POST" class="inline">
                                                     @csrf
-                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer">
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer" onclick="return confirm('Êtes-vous sûr de vouloir confirmer cette réservation?');">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
@@ -423,13 +438,14 @@
                                             @if($reservation->status == 'pending' || $reservation->status == 'confirmed')
                                                 <form action="{{ route('provider.reservations.cancel', $reservation->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
                                                     @csrf
+                                                    @method('PATCH')
                                                     <button type="submit" class="text-red-600 hover:text-red-900" title="Annuler">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>
                                             @endif
                                             
-                                            <button class="text-blue-600 hover:text-blue-900" title="Voir détails">
+                                            <button class="text-blue-600 hover:text-blue-900 view-details" data-id="{{ $reservation->id }}" title="Voir détails">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
@@ -449,8 +465,129 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Disponibilités récentes -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">Prochaines disponibilités</h2>
+                    @if(count($services ?? []) > 0)
+                        <a href="{{ route('provider.availability.index', $services->first()->id) }}" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
+                            Gérer les disponibilités <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    @endif
+                </div>
+                
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Jour</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horaires</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservations</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($upcomingAvailabilities ?? [] as $availability)
+                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+                                                <i class="fas fa-clipboard-list"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">{{ $availability->service->name ?? 'Service inconnu' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @if($availability->specific_date)
+                                            {{ \Carbon\Carbon::parse($availability->specific_date)->format('d/m/Y') }}
+                                        @else
+                                            @switch($availability->day_of_week)
+                                                @case(0) Dimanche @break
+                                                @case(1) Lundi @break
+                                                @case(2) Mardi @break
+                                                @case(3) Mercredi @break
+                                                @case(4) Jeudi @break
+                                                @case(5) Vendredi @break
+                                                @case(6) Samedi @break
+                                            @endswitch
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ \Carbon\Carbon::parse($availability->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($availability->end_time)->format('H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @if($availability->is_available)
+                                            <span class="text-gray-900">{{ $availability->reservations_count ?? 0 }} / {{ $availability->max_reservations }}</span>
+                                        @else
+                                            <span class="text-red-600">Indisponible</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($availability->specific_date)
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                Spécifique
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Récurrent
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="{{ route('provider.availability.index', $availability->service_id) }}" class="text-indigo-600 hover:text-indigo-900" title="Voir toutes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        <div class="py-6">
+                                            <p class="text-gray-500">Aucune disponibilité configurée</p>
+                                            @if(count($services ?? []) > 0)
+                                                <a href="{{ route('provider.availability.index', $services->first()->id) }}" class="mt-2 inline-block text-primary-600 hover:text-primary-800">
+                                                    Ajouter une disponibilité
+                                                </a>
+                                            @endif
+                                        </div>                         
+                                        <tr class="hover:bg-gray-50">
+   
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
+    
+    <!-- Reservation Details Modal -->
+    <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-900">Détails de la réservation</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6" id="modal-content">
+                <div class="flex justify-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Scripts -->
     <script>
@@ -484,6 +621,133 @@
                     item.classList.remove('active');
                 }
             });
+            
+            // Modal functionality
+            const detailsModal = document.getElementById('details-modal');
+            const closeModal = document.getElementById('close-modal');
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            const modalContent = document.getElementById('modal-content');
+            
+            if (viewDetailsButtons.length > 0 && detailsModal && closeModal && modalContent) {
+                viewDetailsButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reservationId = this.getAttribute('data-id');
+                        detailsModal.classList.remove('hidden');
+                        
+                        // Show loading spinner
+                        modalContent.innerHTML = '<div class="flex justify-center"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>';
+                        
+                        // Fetch reservation details
+                        fetch(`/provider/reservations/${reservationId}/details`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    const reservation = data.reservation;
+                                    let statusClass = '';
+                                    let statusText = '';
+                                    
+                                    if (reservation.status === 'pending') {
+                                        statusClass = 'bg-yellow-100 text-yellow-800';
+                                        statusText = 'En attente';
+                                    } else if (reservation.status === 'confirmed') {
+                                        statusClass = 'bg-green-100 text-green-800';
+                                        statusText = 'Confirmée';
+                                    } else if (reservation.status === 'cancelled') {
+                                        statusClass = 'bg-red-100 text-red-800';
+                                        statusText = 'Annulée';
+                                    }
+                                    
+                                    modalContent.innerHTML = `
+                                        <div class="space-y-4">
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Client</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${reservation.user.name}</p>
+                                                <p class="mt-1 text-sm text-gray-500">${reservation.user.email}</p>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Service</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${reservation.service.name}</p>
+                                                <p class="mt-1 text-sm text-gray-500">${reservation.service.category || ''}</p>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Date et heure</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${new Date(reservation.reservation_date).toLocaleDateString('fr-FR')} à ${new Date(reservation.reservation_date).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Statut</h4>
+                                                <p class="mt-1">
+                                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                                        ${statusText}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Prix</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${reservation.service.price} €</p>
+                                            </div>
+                                            ${reservation.notes ? `
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Notes</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${reservation.notes}</p>
+                                            </div>
+                                            ` : ''}
+                                            <div>
+                                                <h4 class="text-sm font-medium text-gray-500">Créée le</h4>
+                                                <p class="mt-1 text-sm text-gray-900">${new Date(reservation.created_at).toLocaleDateString('fr-FR')} à ${new Date(reservation.created_at).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>
+                                            </div>
+                                        </div>
+                                        ${reservation.status === 'pending' ? `
+                                        <div class="mt-6 flex space-x-3">
+                                            <form action="/provider/reservations/${reservation.id}/confirm" method="POST" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors">
+                                                    Confirmer
+                                                </button>
+                                            </form>
+                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                                                    Annuler
+                                                </button>
+                                            </form>
+                                        </div>
+                                        ` : ''}
+                                        ${reservation.status === 'confirmed' ? `
+                                        <div class="mt-6">
+                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                                                    Annuler
+                                                </button>
+                                            </form>
+                                        </div>
+                                        ` : ''}
+                                    `;
+                                } else {
+                                    modalContent.innerHTML = '<p class="text-red-500">Erreur lors du chargement des détails de la réservation.</p>';
+                                }
+                            })
+                            .catch(error => {
+                                modalContent.innerHTML = '<p class="text-red-500">Erreur lors du chargement des détails de la réservation.</p>';
+                                console.error('Error:', error);
+                            });
+                    });
+                });
+                
+                closeModal.addEventListener('click', function() {
+                    detailsModal.classList.add('hidden');
+                });
+                
+                // Close modal when clicking outside
+                detailsModal.addEventListener('click', function(e) {
+                    if (e.target === detailsModal) {
+                        detailsModal.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
 </body>

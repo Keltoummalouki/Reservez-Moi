@@ -4,6 +4,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\ServiceRepositoryInterface;
 use App\Repositories\ServiceRepository;
+use App\Repositories\ReservationRepositoryInterface;
+use App\Repositories\ReservationRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {

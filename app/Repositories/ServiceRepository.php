@@ -2,34 +2,32 @@
 
 namespace App\Repositories;
 
-use App\Models\Reservation;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Models\Service;
 
-class ReservationRepository implements ReservationRepositoryInterface
+class ServiceRepository implements ServiceRepositoryInterface
 {
     protected $model;
 
-    public function __construct(Reservation $model)
+    public function __construct(Service $model)
     {
         $this->model = $model;
     }
 
     /**
-     * Get all reservations
+     * Get all services
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function all()
     {
-        return $this->model->all();
+        return $this->model->where('provider_id', auth()->id())->get();
     }
 
     /**
-     * Find a reservation by ID
+     * Find a service by ID
      *
      * @param int $id
-     * @return Reservation
+     * @return Service
      */
     public function find($id)
     {
@@ -37,10 +35,10 @@ class ReservationRepository implements ReservationRepositoryInterface
     }
 
     /**
-     * Create a new reservation
+     * Create a new service
      *
      * @param array $data
-     * @return Reservation
+     * @return Service
      */
     public function create(array $data)
     {
@@ -48,21 +46,21 @@ class ReservationRepository implements ReservationRepositoryInterface
     }
 
     /**
-     * Update a reservation
+     * Update a service
      *
      * @param int $id
      * @param array $data
-     * @return Reservation
+     * @return Service
      */
     public function update($id, array $data)
     {
-        $reservation = $this->find($id);
-        $reservation->update($data);
-        return $reservation;
+        $service = $this->find($id);
+        $service->update($data);
+        return $service;
     }
 
     /**
-     * Delete a reservation
+     * Delete a service
      *
      * @param int $id
      * @return bool
@@ -70,55 +68,5 @@ class ReservationRepository implements ReservationRepositoryInterface
     public function delete($id)
     {
         return $this->find($id)->delete();
-    }
-
-    /**
-     * Check if there's a conflicting reservation for the same service at the same time
-     *
-     * @param int $serviceId
-     * @param string|Carbon $reservationDate
-     * @return Reservation|null
-     */
-    public function checkConflictingReservation($serviceId, $reservationDate)
-    {
-        if (!$reservationDate instanceof Carbon) {
-            $reservationDate = Carbon::parse($reservationDate);
-        }
-
-        return $this->model
-            ->where('service_id', $serviceId)
-            ->where('reservation_date', $reservationDate)
-            ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-            ->first();
-    }
-
-    /**
-     * Get upcoming reservations for a service
-     *
-     * @param int $serviceId
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getUpcomingForService($serviceId)
-    {
-        return $this->model
-            ->where('service_id', $serviceId)
-            ->where('reservation_date', '>=', now())
-            ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-            ->orderBy('reservation_date')
-            ->get();
-    }
-
-    /**
-     * Get reservations for a user
-     *
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getForUser($userId)
-    {
-        return $this->model
-            ->where('user_id', $userId)
-            ->orderBy('reservation_date', 'desc')
-            ->get();
     }
 }
