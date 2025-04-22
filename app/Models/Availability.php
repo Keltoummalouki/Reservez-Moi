@@ -99,11 +99,11 @@ class Availability extends Model
             // Vérifier le nombre de réservations déjà effectuées pour ce créneau
             if ($specificAvailability->max_reservations > 0) {
                 $reservationCount = Reservation::where('service_id', $serviceId)
-                    ->whereDate('reservation_date', $dateTime->toDateString())
-                    ->whereTime('reservation_date', '>=', $specificAvailability->start_time)
-                    ->whereTime('reservation_date', '<=', $specificAvailability->end_time)
-                    ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                    ->count();
+                ->whereDate('reservation_date', $dateTime->toDateString())
+                ->whereRaw("TIME(reservation_date) >= ?", [$specificAvailability->start_time])
+                ->whereRaw("TIME(reservation_date) <= ?", [$specificAvailability->end_time])
+                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+                ->count();
 
                 if ($reservationCount >= $specificAvailability->max_reservations) {
                     return false;
@@ -131,11 +131,11 @@ class Availability extends Model
         // Vérifier le nombre de réservations déjà effectuées pour ce créneau
         if ($weeklyAvailability->max_reservations > 0) {
             $reservationCount = Reservation::where('service_id', $serviceId)
-                ->whereDate('reservation_date', $dateTime->toDateString())
-                ->whereTime('reservation_date', '>=', $weeklyAvailability->start_time)
-                ->whereTime('reservation_date', '<=', $weeklyAvailability->end_time)
-                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                ->count();
+            ->whereDate('reservation_date', $dateTime->toDateString())
+            ->whereRaw("TIME(reservation_date) >= ?", [$weeklyAvailability->start_time])
+            ->whereRaw("TIME(reservation_date) <= ?", [$weeklyAvailability->end_time])
+            ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+            ->count();
 
             if ($reservationCount >= $weeklyAvailability->max_reservations) {
                 return false;
@@ -183,11 +183,11 @@ class Availability extends Model
             if (!$isOverridden) {
                 // Vérifier le nombre de réservations existantes
                 $reservationCount = Reservation::where('service_id', $serviceId)
-                    ->whereDate('reservation_date', $date)
-                    ->whereTime('reservation_date', '>=', $slot->start_time)
-                    ->whereTime('reservation_date', '<=', $slot->end_time)
-                    ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                    ->count();
+                ->whereDate('reservation_date', $date)
+                ->whereRaw("TIME(reservation_date) >= ?", [$slot->start_time])
+                ->whereRaw("TIME(reservation_date) <= ?", [$slot->end_time])
+                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+                ->count();
                 
                 if ($reservationCount < $slot->max_reservations) {
                     $availableSlots[] = [
@@ -204,11 +204,11 @@ class Availability extends Model
             if ($slot->is_available) {
                 // Vérifier le nombre de réservations existantes
                 $reservationCount = Reservation::where('service_id', $serviceId)
-                    ->whereDate('reservation_date', $date)
-                    ->whereTime('reservation_date', '>=', $slot->start_time)
-                    ->whereTime('reservation_date', '<=', $slot->end_time)
-                    ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                    ->count();
+                ->whereDate('reservation_date', $date)
+                ->whereRaw("TIME(reservation_date) >= ?", [$slot->start_time])
+                ->whereRaw("TIME(reservation_date) <= ?", [$slot->end_time])
+                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+                ->count();
                 
                 if ($reservationCount < $slot->max_reservations) {
                     $availableSlots[] = [

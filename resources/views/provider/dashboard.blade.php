@@ -110,23 +110,23 @@
             </div>
             
             <nav class="space-y-1">
-                <a href="{{ route('provider.dashboard') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.dashboard') }}" class="sidebar-item {{ request()->routeIs('provider.dashboard') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services') }}" class="sidebar-item {{ request()->routeIs('provider.availability*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors" id="availability-menu-item">
                     <i class="fas fa-clock text-primary-300 w-5"></i>
                     <span>Disponibilités</span>
                 </a>
-                <a href="{{ route('provider.reservations') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.reservations') }}" class="sidebar-item {{ request()->routeIs('provider.reservations*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="#" class="sidebar-item {{ request()->routeIs('provider.settings*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-cog text-primary-300 w-5"></i>
                     <span>Paramètres</span>
                 </a>
@@ -141,6 +141,7 @@
                     </form>
                 </div>
             </nav>
+            
         </div>
     </aside>
     
@@ -591,6 +592,19 @@
     
     <!-- Scripts -->
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Si l'utilisateur a des services, le menu "Disponibilités" redirige vers le premier service
+            const availabilityMenuItem = document.getElementById('availability-menu-item');
+            if (availabilityMenuItem) {
+                @if(isset($services) && count($services) > 0)
+                    availabilityMenuItem.href = "{{ route('provider.availability.index', isset($services->first()->id) ? $services->first()->id : '') }}";
+                @elseif(isset($service))
+                    availabilityMenuItem.href = "{{ route('provider.availability.index', $service->id) }}";
+                @else
+                    availabilityMenuItem.href = "{{ route('provider.services') }}";
+                @endif
+            }
+        });
         document.addEventListener('DOMContentLoaded', function() {
             // Mobile sidebar toggle
             const sidebarToggle = document.getElementById('sidebar-toggle');

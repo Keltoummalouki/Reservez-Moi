@@ -218,6 +218,12 @@ Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provide
     Route::get('/services/{service}/availability/create-specific', [ProviderAvailabilityController::class, 'createSpecific'])->name('availability.create-specific');
     Route::post('/services/{service}/availability/specific', [ProviderAvailabilityController::class, 'storeSpecific'])->name('availability.store-specific');
     Route::delete('/services/{service}/availability/{availability}', [ProviderAvailabilityController::class, 'destroy'])->name('availability.destroy');
+
+    Route::get('/provider/availability/{serviceId}/edit-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'editWeekly'])
+    ->name('provider.availability.edit-weekly');
+
+    Route::put('/provider/availability/{serviceId}/update-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'updateWeekly'])
+    ->name('provider.availability.update-weekly');
 });
 
 // Routes pour les administrateurs

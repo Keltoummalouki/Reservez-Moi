@@ -27,6 +27,9 @@ class ProviderAvailabilityController extends Controller
      */
     public function index($serviceId)
     {
+        // Récupérer tous les services du prestataire pour le sélecteur
+        $services = Service::where('provider_id', Auth::id())->get();
+        
         // Récupérer le service et vérifier qu'il appartient bien au prestataire connecté
         $service = Service::where('id', $serviceId)
             ->where('provider_id', Auth::id())
@@ -56,6 +59,7 @@ class ProviderAvailabilityController extends Controller
             
         return view('provider.availability.index', compact(
             'service', 
+            'services',
             'weeklyAvailabilities', 
             'specificAvailabilities', 
             'upcomingReservations'
@@ -325,5 +329,115 @@ class ProviderAvailabilityController extends Controller
             'slots' => $formattedSlots,
             'has_slots' => count($formattedSlots) > 0,
         ]);
+    }
+
+    /**
+     * Afficher le formulaire pour modifier une disponibilité hebdomadaire
+     * 
+     * @param int $serviceId
+     * @param int $availabilityId
+     * @return \Illuminate\View\View
+     */
+    public function editWeekly($serviceId, $availabilityId)
+    {
+        // Vérifiez que le service appartient au prestataire connecté
+        $service = Service::where('id', $serviceId)
+            ->where('provider_id', Auth::id())
+            ->firstOrFail();
+    
+        // Récupérez la disponibilité hebdomadaire
+        $availability = Availability::where('id', $availabilityId)
+            ->where('service_id', $serviceId)
+            ->whereNull('specific_date')
+            ->firstOrFail();
+    
+        return view('provider.availability.edit_weekly', compact('service', 'availability'));
+    }
+
+    /**
+     * Mettre à jour une disponibilité hebdomadaire
+     * 
+     * @param Request $request
+     * @param int $serviceId
+     * @param int $availabilityId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateWeekly(Request $request, $serviceId, $availabilityId)
+    {
+        // Vérifiez que le service appartient au prestataire connecté
+        $service = Service::where('id', $serviceId)
+            ->where('provider_id', Auth::id())
+            ->firstOrFail();
+
+        // Récupérez la disponibilité hebdomadaire
+        $availability = Availability::where('id', $availabilityId)
+            ->where('service_id', $serviceId)
+            ->whereNull('specific_date')
+            ->firstOrFail();
+
+        // Validez les données
+        $validated = $request->validate([
+            'day_of_week' => 'required|integer|between:0,6',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'max_reservations' => 'required|integer|min:1',
+        ]);
+        
+        // Convertir les heures au format H:i:s
+        $validated['start_time'] = $validated['start_time'] . ':00';
+        $validated['end_time'] = $validated['end_time'] . ':00';
+        
+        // Vérifier s'il y a un chevauchement avec une autre disponibilité existante
+        $overlap = Availability::where('service_id', $serviceId)
+            ->whereNull('specific_date')
+            ->where('day_of_week', $validated['day_of_week'])
+            ->where('id', '!=', $availabilityId) // Exclure la disponibilité actuelle
+            ->where(function ($query) use ($validated) {
+                $query->where(function ($q) use ($validated) {
+                    $q->where('start_time', '<', $validated['end_time'])
+                      ->where('end_time', '>', $validated['start_time']);
+                });
+            })
+            ->exists();
+            
+        if ($overlap) {
+            return back()->withErrors(['overlap' => 'Ce créneau chevauche une disponibilité existante.'])
+                         ->withInput();
+        }
+        
+        // Vérifier les réservations existantes si on change le jour ou les horaires
+        if ($availability->day_of_week != $validated['day_of_week'] || 
+            $availability->start_time != $validated['start_time'] || 
+            $availability->end_time != $validated['end_time']) {
+            
+            // Pour les disponibilités hebdomadaires, vérifier les réservations futures
+            $dayOfWeek = $availability->day_of_week;
+            $startTime = $availability->start_time;
+            $endTime = $availability->end_time;
+            
+            $reservations = Reservation::where('service_id', $serviceId)
+                ->where('reservation_date', '>=', now())
+                ->whereRaw("DAYOFWEEK(reservation_date) = ?", [$dayOfWeek === 0 ? 1 : $dayOfWeek + 1])
+                ->whereTime('reservation_date', '>=', $startTime)
+                ->whereTime('reservation_date', '<=', $endTime)
+                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+                ->count();
+                
+            if ($reservations > 0) {
+                return back()->withErrors(['reservations' => 'Il existe déjà des réservations futures pour ce créneau. Vous ne pouvez pas le modifier.'])
+                            ->withInput();
+            }
+        }
+
+        // Mettez à jour la disponibilité
+        $availability->update([
+            'day_of_week' => $validated['day_of_week'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'max_reservations' => $validated['max_reservations'],
+        ]);
+
+        return redirect()->route('provider.availability.index', $serviceId)
+            ->with('success', 'Disponibilité mise à jour avec succès.');
     }
 }
