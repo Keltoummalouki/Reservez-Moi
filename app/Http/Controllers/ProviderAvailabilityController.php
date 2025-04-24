@@ -25,45 +25,20 @@ class ProviderAvailabilityController extends Controller
      * @param int $serviceId
      * @return \Illuminate\View\View
      */
-    public function index($serviceId)
+    public function index(Service $service)
     {
-        // Récupérer tous les services du prestataire pour le sélecteur
-        $services = Service::where('provider_id', Auth::id())->get();
-        
-        // Récupérer le service et vérifier qu'il appartient bien au prestataire connecté
-        $service = Service::where('id', $serviceId)
-            ->where('provider_id', Auth::id())
-            ->firstOrFail();
-            
-        // Récupérer les disponibilités hebdomadaires
-        $weeklyAvailabilities = Availability::where('service_id', $serviceId)
-            ->whereNull('specific_date')
-            ->orderBy('day_of_week')
-            ->orderBy('start_time')
-            ->get();
-            
-        // Récupérer les disponibilités exceptionnelles (spécifiques à certaines dates)
-        $specificAvailabilities = Availability::where('service_id', $serviceId)
-            ->whereNotNull('specific_date')
-            ->orderBy('specific_date')
-            ->orderBy('start_time')
-            ->get();
-            
-        // Récupérer les réservations à venir pour ce service
-        $upcomingReservations = Reservation::where('service_id', $serviceId)
-            ->where('reservation_date', '>=', now())
-            ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-            ->orderBy('reservation_date')
-            ->with('user')
-            ->get();
-            
-        return view('provider.availability.index', compact(
-            'service', 
-            'services',
-            'weeklyAvailabilities', 
-            'specificAvailabilities', 
-            'upcomingReservations'
-        ));
+        $availabilities = $service->availabilities()
+            ->get()
+            ->map(function ($availability) {
+                return [
+                    'title' => $availability->is_available ? 'Disponible' : 'Indisponible',
+                    'start' => $availability->start_time,
+                    'end' => $availability->end_time,
+                    'className' => $availability->is_available ? 'available' : 'unavailable'
+                ];
+            });
+
+        return view('provider.availability.index', compact('service', 'availabilities'));
     }
 
     /**
@@ -439,5 +414,31 @@ class ProviderAvailabilityController extends Controller
 
         return redirect()->route('provider.availability.index', $serviceId)
             ->with('success', 'Disponibilité mise à jour avec succès.');
+    }
+
+    public function update(Request $request, Service $service)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'is_available' => 'required|boolean'
+        ]);
+
+        $date = Carbon::parse($request->date);
+
+        $availability = $service->availabilities()->updateOrCreate(
+            [
+                'start_time' => $date->startOfDay(),
+                'end_time' => $date->copy()->endOfDay(),
+            ],
+            [
+                'is_available' => $request->is_available,
+                'max_reservations' => $request->is_available ? 1 : 0
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'availability' => $availability
+        ]);
     }
 }

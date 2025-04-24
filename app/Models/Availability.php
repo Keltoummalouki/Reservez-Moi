@@ -12,19 +12,17 @@ class Availability extends Model
 
     protected $fillable = [
         'service_id',
-        'day_of_week',         // 0 (dimanche) à 6 (samedi)
-        'start_time',          // Format H:i:s
-        'end_time',            // Format H:i:s
-        'is_available',        // true = disponible, false = indisponible (exception)
-        'specific_date',       // Date spécifique (nullable)
-        'max_reservations',    // Nombre max de réservations pour ce créneau
+        'start_time',
+        'end_time',
+        'is_available',
+        'max_reservations'
     ];
 
     protected $casts = [
-        'specific_date' => 'date',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'is_available' => 'boolean',
-        'max_reservations' => 'integer',
-        'day_of_week' => 'integer',
+        'max_reservations' => 'integer'
     ];
 
     /**
@@ -35,36 +33,9 @@ class Availability extends Model
         return $this->belongsTo(Service::class);
     }
 
-    /**
-     * Scope: disponibilités hebdomadaires (récurrentes)
-     */
-    public function scopeWeekly($query)
+    public function reservations()
     {
-        return $query->whereNull('specific_date');
-    }
-
-    /**
-     * Scope: disponibilités spécifiques (dates exceptionnelles)
-     */
-    public function scopeSpecific($query)
-    {
-        return $query->whereNotNull('specific_date');
-    }
-
-    /**
-     * Scope: disponibilités disponibles (is_available = true)
-     */
-    public function scopeAvailable($query)
-    {
-        return $query->where('is_available', true);
-    }
-
-    /**
-     * Scope: indisponibilités (is_available = false)
-     */
-    public function scopeUnavailable($query)
-    {
-        return $query->where('is_available', false);
+        return $this->hasMany(Reservation::class);
     }
 
     /**
@@ -240,5 +211,18 @@ class Availability extends Model
     private static function timesOverlap($start1, $end1, $start2, $end2)
     {
         return $start1 < $end2 && $start2 < $end1;
+    }
+
+    public function isAvailableForReservation()
+    {
+        if (!$this->is_available) {
+            return false;
+        }
+
+        $reservationsCount = $this->reservations()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->count();
+
+        return $reservationsCount < $this->max_reservations;
     }
 }

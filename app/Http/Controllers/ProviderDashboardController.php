@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Service;
 use App\Models\Reservation;
 use App\Models\Availability;
+use App\Models\Category;
 use Carbon\Carbon;
 
 class ProviderDashboardController extends Controller
@@ -28,6 +29,13 @@ class ProviderDashboardController extends Controller
             ->get();
         
         $servicesCount = Service::where('provider_id', $user->id)->count();
+        
+        // Récupérer les catégories avec leurs services
+        $categories = Category::with(['services' => function($query) use ($user) {
+            $query->where('provider_id', $user->id)
+                  ->withCount('reservations')
+                  ->orderBy('name');
+        }])->get();
         
         // Récupérer les réservations du prestataire
         $reservations = Reservation::whereHas('service', function ($query) use ($user) {
@@ -63,7 +71,8 @@ class ProviderDashboardController extends Controller
             'reservationsCount', 
             'pendingReservationsCount', 
             'revenue',
-            'upcomingAvailabilities'
+            'upcomingAvailabilities',
+            'categories'
         ));
     }
     
@@ -143,8 +152,10 @@ class ProviderDashboardController extends Controller
             
             $reservationsCount = Reservation::where('service_id', $availability->service_id)
                 ->whereDate('reservation_date', $availability->specific_date)
-                ->whereTime('reservation_date', '>=', $availability->start_time)
-                ->whereTime('reservation_date', '<=', $availability->end_time)
+                ->whereRaw('TIME(reservation_date) BETWEEN ? AND ?', [
+                    $availability->start_time,
+                    $availability->end_time
+                ])
                 ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
                 ->count();
                 

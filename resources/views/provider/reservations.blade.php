@@ -117,10 +117,6 @@
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-clock text-primary-300 w-5"></i>
-                    <span>Disponibilités</span>
-                </a>
                 <a href="{{ route('provider.reservations') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>

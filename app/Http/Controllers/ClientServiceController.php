@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Service;
+use App\Models\Category;
 
 class ClientServiceController extends Controller
 {
@@ -15,12 +16,12 @@ class ClientServiceController extends Controller
     public function index(Request $request)
     {
         $query = Service::where('is_available', true)
-            ->with('provider')
+            ->with(['provider', 'category'])
             ->withCount('reservations')
             ->latest();
 
         if ($request->filled('category')) {
-            $query->where('category', $request->category);
+            $query->where('category_id', $request->category);
         }
 
         if ($request->filled('search')) {
@@ -36,11 +37,10 @@ class ClientServiceController extends Controller
 
         $services = $query->paginate(9)->appends($request->query());
 
-        $categories = Service::where('is_available', true)
-            ->distinct()
-            ->pluck('category')
-            ->filter()
-            ->values();
+        // Get categories that have available services
+        $categories = Category::whereHas('services', function($query) {
+            $query->where('is_available', true);
+        })->get();
 
         return view('client.services', compact('services', 'categories'));
     }

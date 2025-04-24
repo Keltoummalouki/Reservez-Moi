@@ -118,10 +118,6 @@
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item {{ request()->routeIs('provider.availability*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors" id="availability-menu-item">
-                    <i class="fas fa-clock text-primary-300 w-5"></i>
-                    <span>Disponibilités</span>
-                </a>
                 <a href="{{ route('provider.reservations') }}" class="sidebar-item {{ request()->routeIs('provider.reservations*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
@@ -287,7 +283,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            {{ $service->category ?? 'Non classé' }}
+                                            {{ $service->category->name ?? 'Non classé' }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -349,6 +345,57 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Services par catégorie -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">Services par catégorie</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($categories as $category)
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $category->name }}</h3>
+                                <p class="text-sm text-gray-500">{{ $category->services->count() }} services</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            @forelse($category->services as $service)
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $service->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $service->price }} € - {{ $service->duration }} min</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 text-xs rounded-full {{ $service->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $service->is_active ? 'Actif' : 'Inactif' }}
+                                    </span>
+                                    <a href="{{ route('provider.services.edit', $service) }}" class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-sm text-gray-500 text-center">Aucun service dans cette catégorie</p>
+                            @endforelse
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="{{ route('provider.services.create') }}?category={{ $category->id }}" 
+                               class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-plus mr-1"></i> Ajouter un service
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
             
@@ -690,7 +737,7 @@
                                             <div>
                                                 <h4 class="text-sm font-medium text-gray-500">Statut</h4>
                                                 <p class="mt-1">
-                                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold ${statusClass}">
                                                         ${statusText}
                                                     </span>
                                                 </p>

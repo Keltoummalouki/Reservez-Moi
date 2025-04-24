@@ -10,12 +10,13 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'provider_id',
         'name',
         'description',
         'price',
-        'category',
-        'is_available',
+        'duration',
+        'provider_id',
+        'category_id',
+        'is_available'
     ];
 
     public function provider()
@@ -26,5 +27,15 @@ class Service extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function availabilities()
+    {
+        return $this->hasMany(Availability::class);
     }
 }

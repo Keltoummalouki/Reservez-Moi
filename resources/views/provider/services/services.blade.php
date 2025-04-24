@@ -202,7 +202,10 @@
                                     <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
                                         <i class="fas fa-clipboard-list"></i>
                                     </div>
-                                    <h3 class="text-lg font-semibold text-gray-900">{{ $service->name }}</h3>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ $service->name }}</h3>
+                                        <p class="text-sm text-gray-500">{{ $service->category->name ?? 'Non classé' }}</p>
+                                    </div>
                                 </div>
                                 <div>
                                     @if ($service->is_available)
@@ -220,7 +223,7 @@
                             <div class="mb-4">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Catégorie:</span>
-                                    <span class="text-sm text-gray-500">{{ $service->category ?: 'Non classé' }}</span>
+                                    <span class="text-sm text-gray-500">{{ $service->category->name ?? 'Non classé' }}</span>
                                 </div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Prix:</span>
@@ -238,7 +241,7 @@
                                 <a href="{{ route('provider.services.edit', $service->id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center">
                                     <i class="fas fa-edit mr-1"></i> Modifier
                                 </a>
-                                <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?');">
+                                <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center">

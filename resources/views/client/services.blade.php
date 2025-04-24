@@ -275,7 +275,7 @@
                                 <select name="category" class="w-full py-3 px-4 rounded-md border-0 focus:ring-2 focus:ring-primary-500 appearance-none bg-white">
                                     <option value="" selected>Tous les secteurs</option>
                                     @foreach($categories as $category)
-                                    <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>{{ $category }}</option>
+                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                     @endforeach
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -299,21 +299,21 @@
                         Tous les services
                     </a>
                     @foreach($categories as $category)
-                    <a href="{{ route('client.services', ['category' => $category]) }}" class="filter-pill {{ request('category') == $category ? 'active' : '' }}">
-                        @if($category == 'Médical')
+                    <a href="{{ route('client.services', ['category' => $category->id]) }}" class="filter-pill {{ request('category') == $category->id ? 'active' : '' }}">
+                        @if($category->name == 'Médical')
                             <i class="fas fa-stethoscope mr-1"></i>
-                        @elseif($category == 'Juridique')
+                        @elseif($category->name == 'Juridique')
                             <i class="fas fa-gavel mr-1"></i>
-                        @elseif($category == 'Beauté & Spa')
+                        @elseif($category->name == 'Beauté & Spa')
                             <i class="fas fa-spa mr-1"></i>
-                        @elseif($category == 'Hôtel')
+                        @elseif($category->name == 'Hôtel')
                             <i class="fas fa-hotel mr-1"></i>
-                        @elseif($category == 'Restaurant')
+                        @elseif($category->name == 'Restaurant')
                             <i class="fas fa-utensils mr-1"></i>
                         @else
                             <i class="fas fa-tag mr-1"></i>
                         @endif
-                        {{ $category }}
+                        {{ $category->name }}
                     </a>
                     @endforeach
                 </div>
@@ -398,20 +398,20 @@
                                     @endif
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                                         <div class="flex items-center text-white">
-                                            @if($service->category == 'Médical')
+                                            @if($service->category->name == 'Médical')
                                             <i class="fas fa-stethoscope mr-2"></i>
-                                            @elseif($service->category == 'Juridique')
+                                            @elseif($service->category->name == 'Juridique')
                                             <i class="fas fa-gavel mr-2"></i>
-                                            @elseif($service->category == 'Beauté & Spa')
+                                            @elseif($service->category->name == 'Beauté & Spa')
                                             <i class="fas fa-spa mr-2"></i>
-                                            @elseif($service->category == 'Hôtel')
+                                            @elseif($service->category->name == 'Hôtel')
                                             <i class="fas fa-hotel mr-2"></i>
-                                            @elseif($service->category == 'Restaurant')
+                                            @elseif($service->category->name == 'Restaurant')
                                             <i class="fas fa-utensils mr-2"></i>
                                             @else
                                             <i class="fas fa-tag mr-2"></i>
                                             @endif
-                                            <span class="text-sm font-medium">{{ $service->category ?: 'Service' }}</span>
+                                            <span class="text-sm font-medium">{{ $service->category->name ?: 'Service' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -496,20 +496,20 @@
                                     <img src="{{ $service->image_url ?? 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80' }}" alt="{{ $service->name }}" class="w-full h-48 object-cover">
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                                         <div class="flex items-center text-white">
-                                            @if($service->category == 'Médical')
+                                            @if($service->category->name == 'Médical')
                                             <i class="fas fa-stethoscope mr-2"></i>
-                                            @elseif($service->category == 'Juridique')
+                                            @elseif($service->category->name == 'Juridique')
                                             <i class="fas fa-gavel mr-2"></i>
-                                            @elseif($service->category == 'Beauté & Spa')
+                                            @elseif($service->category->name == 'Beauté & Spa')
                                             <i class="fas fa-spa mr-2"></i>
-                                            @elseif($service->category == 'Hôtel')
+                                            @elseif($service->category->name == 'Hôtel')
                                             <i class="fas fa-hotel mr-2"></i>
-                                            @elseif($service->category == 'Restaurant')
+                                            @elseif($service->category->name == 'Restaurant')
                                             <i class="fas fa-utensils mr-2"></i>
                                             @else
                                             <i class="fas fa-tag mr-2"></i>
                                             @endif
-                                            <span class="text-sm font-medium">{{ $service->category ?: 'Service' }}</span>
+                                            <span class="text-sm font-medium">{{ $service->category->name ?: 'Service' }}</span>
                                         </div>
                                     </div>
                                 </div>

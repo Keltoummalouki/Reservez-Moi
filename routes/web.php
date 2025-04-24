@@ -1,5 +1,4 @@
 <?php
-// routes/web.php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -15,10 +14,18 @@ use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ProviderReservationController;
 use App\Http\Controllers\ProviderAvailabilityController;
 use App\Http\Controllers\AdminServiceProviderController;
+use App\Http\Controllers\AdminServicesController;
+use App\Http\Controllers\AdminStatisticsController;
+use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminProprietaireController;
+use App\Http\Controllers\ProviderDashboardController;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
+use App\Models\ServiceProvider;
+use App\Models\Category;
 
 /*
 |--------------------------------------------------------------------------
@@ -174,29 +181,7 @@ Route::middleware(['auth', 'role:Client', 'throttle:10,1'])->prefix('client')->n
 // Routes pour les prestataires de services
 Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provider')->name('provider.')->group(function () {
     // Tableau de bord
-    Route::get('/dashboard', function () {
-        $user = Auth::user();
-        $servicesCount = $user->services()->count();
-        $reservationsCount = $user->services()->withCount('reservations')->get()->sum('reservations_count');
-        $pendingReservationsCount = $user->services()->withCount(['reservations' => function ($query) {
-            $query->where('status', 'pending');
-        }])->get()->sum('reservations_count');
-        $revenue = $user->services()->with(['reservations' => function ($query) {
-            $query->where('payment_status', 'completed');
-        }])->get()->sum(function ($service) {
-            return $service->reservations->sum('amount');
-        });
-        
-        $services = $user->services()->withCount('reservations')->latest()->take(5)->get();
-        $reservations = \App\Models\Reservation::whereHas('service', function ($query) use ($user) {
-            $query->where('provider_id', $user->id);
-        })->with('service', 'user')->latest()->take(5)->get();
-        
-        return view('provider.dashboard', compact(
-            'servicesCount', 'reservationsCount', 'pendingReservationsCount', 'revenue',
-            'services', 'reservations'
-        ));
-    })->name('dashboard');
+    Route::get('/dashboard', [ProviderDashboardController::class, 'index'])->name('dashboard');
 
     // Services
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
@@ -228,15 +213,40 @@ Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provide
 
 // Routes pour les administrateurs
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Tableau de bord
-    Route::get('/dashboard', [AdminServiceProviderController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     
-    // Gestion des prestataires de services
+    // Routes pour les prestataires
+    Route::get('/service-providers', [AdminServiceProviderController::class, 'index'])->name('service_providers');
     Route::get('/service-providers/create', [AdminServiceProviderController::class, 'create'])->name('service_providers.create');
     Route::post('/service-providers', [AdminServiceProviderController::class, 'store'])->name('service_providers.store');
-    Route::get('/service-providers/{user}/edit', [AdminServiceProviderController::class, 'edit'])->name('service_providers.edit');
-    Route::put('/service-providers/{user}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
-    Route::delete('/service-providers/{user}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
+    Route::get('/service-providers/{provider}', [AdminServiceProviderController::class, 'show'])->name('service_providers.show');
+    Route::get('/service-providers/{provider}/edit', [AdminServiceProviderController::class, 'edit'])->name('service_providers.edit');
+    Route::put('/service-providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
+    Route::delete('/service-providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
+    
+    // Routes pour les services
+    Route::get('/services', [AdminServicesController::class, 'index'])->name('services');
+    Route::get('/services/create', [AdminServicesController::class, 'create'])->name('services.create');
+    Route::post('/services', [AdminServicesController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}/edit', [AdminServicesController::class, 'edit'])->name('services.edit');
+    Route::put('/services/{service}', [AdminServicesController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [AdminServicesController::class, 'destroy'])->name('services.destroy');
+    
+    // Routes pour les propriétaires
+    Route::get('/proprietaires', [AdminProprietaireController::class, 'index'])->name('proprietaires.index');
+    Route::get('/proprietaires/create', [AdminProprietaireController::class, 'create'])->name('proprietaires.create');
+    Route::post('/proprietaires', [AdminProprietaireController::class, 'store'])->name('proprietaires.store');
+    Route::get('/proprietaires/{proprietaire}', [AdminProprietaireController::class, 'show'])->name('proprietaires.show');
+    Route::get('/proprietaires/{proprietaire}/edit', [AdminProprietaireController::class, 'edit'])->name('proprietaires.edit');
+    Route::put('/proprietaires/{proprietaire}', [AdminProprietaireController::class, 'update'])->name('proprietaires.update');
+    Route::delete('/proprietaires/{proprietaire}', [AdminProprietaireController::class, 'destroy'])->name('proprietaires.destroy');
+    
+    // Routes pour les statistiques
+    Route::get('/statistics', [AdminStatisticsController::class, 'index'])->name('statistics');
+    
+    // Routes pour les paramètres
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
 });
 
 // Routes pour le système de paiement PayPal
