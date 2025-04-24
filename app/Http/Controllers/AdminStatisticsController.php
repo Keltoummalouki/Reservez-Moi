@@ -19,27 +19,21 @@ class AdminStatisticsController extends Controller
 
     public function index(Request $request)
     {
-        // Période par défaut: 30 derniers jours
         $period = $request->input('period', 30);
         $startDate = Carbon::now()->subDays($period);
         
-        // Statistiques générales
         $totalReservations = Reservation::where('created_at', '>=', $startDate)->count();
         $totalRevenue = Reservation::where('payment_status', 'completed')
             ->where('created_at', '>=', $startDate)
             ->sum('amount');
         
-        // Nouveaux clients
         $newClients = User::whereHas('roles', function ($query) {
             $query->where('name', 'Client');
         })->where('created_at', '>=', $startDate)->count();
         
-        // Taux de conversion (réservations / visites)
-        // Note: Ceci est un exemple, vous devrez adapter selon votre logique de tracking
-        $visits = 1000; // Exemple de nombre de visites
+        $visits = 1000; 
         $conversionRate = $visits > 0 ? round(($totalReservations / $visits) * 100, 2) : 0;
         
-        // Croissance par rapport à la période précédente
         $previousStartDate = Carbon::now()->subDays($period * 2)->startOfDay();
         $previousEndDate = Carbon::now()->subDays($period)->endOfDay();
         
