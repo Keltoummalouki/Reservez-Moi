@@ -8,6 +8,8 @@
     <title>Réservations - Reservez-Moi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/sweetalert-config.js') }}"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -258,7 +260,13 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $reservation->service->name ?? 'Service inconnu' }}</div>
-                                        <div class="text-xs text-gray-500">{{ $reservation->service->category ?? '' }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            @if($reservation->service && $reservation->service->category)
+                                                {{ $reservation->service->category->name }}
+                                            @else
+                                                Catégorie non spécifiée
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $reservation->reservation_date ? $reservation->reservation_date->format('d/m/Y') : 'Date inconnue' }}</div>
@@ -289,20 +297,20 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
                                             @if($reservation->status == 'pending')
-                                                <form action="{{ route('provider.reservations.confirm', $reservation->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('provider.reservations.confirm', $reservation->id) }}" method="POST" class="inline confirm-form">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer" onclick="return confirm('Êtes-vous sûr de vouloir confirmer cette réservation?');">
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
                                             @endif
                                             
                                             @if($reservation->status == 'pending' || $reservation->status == 'confirmed')
-                                                <form action="{{ route('provider.reservations.cancel', $reservation->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('provider.reservations.cancel', $reservation->id) }}" method="POST" class="inline cancel-form">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Annuler" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Annuler">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>
@@ -360,6 +368,25 @@
     <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Handle form confirmations with SweetAlert
+            document.querySelectorAll('.confirm-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    SweetAlertHelper.confirm('confirmReservation', () => {
+                        form.submit();
+                    });
+                });
+            });
+
+            document.querySelectorAll('.cancel-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    SweetAlertHelper.confirm('cancelReservation', () => {
+                        form.submit();
+                    });
+                });
+            });
+
             // Mobile sidebar toggle
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('sidebar');

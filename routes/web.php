@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
 use App\Models\ServiceProvider;
 use App\Models\Category;
+use App\Http\Controllers\Provider\StatisticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -209,6 +210,8 @@ Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provide
 
     Route::put('/provider/availability/{serviceId}/update-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'updateWeekly'])
     ->name('provider.availability.update-weekly');
+
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
 });
 
 // Routes pour les administrateurs
