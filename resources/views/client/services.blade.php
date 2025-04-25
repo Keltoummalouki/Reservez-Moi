@@ -300,13 +300,13 @@
                     </a>
                     @foreach($categories as $category)
                     <a href="{{ route('client.services', ['category' => $category->id]) }}" class="filter-pill {{ request('category') == $category->id ? 'active' : '' }}">
-                        @if($category->name == 'Médical')
+                        @if($category->name == 'Doctors & Hospitals')
                             <i class="fas fa-stethoscope mr-1"></i>
-                        @elseif($category->name == 'Juridique')
+                        @elseif($category->name == 'Services juridiques')
                             <i class="fas fa-gavel mr-1"></i>
-                        @elseif($category->name == 'Beauté & Spa')
+                        @elseif($category->name == 'Beauty Salon & Spas')
                             <i class="fas fa-spa mr-1"></i>
-                        @elseif($category->name == 'Hôtel')
+                        @elseif($category->name == 'Hotel')
                             <i class="fas fa-hotel mr-1"></i>
                         @elseif($category->name == 'Restaurant')
                             <i class="fas fa-utensils mr-1"></i>
@@ -398,20 +398,25 @@
                                     @endif
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                                         <div class="flex items-center text-white">
-                                            @if($service->category->name == 'Médical')
+                                            @if($service->category)
+                                                @if($service->category->name == 'Doctors & Hospitals')
                                             <i class="fas fa-stethoscope mr-2"></i>
-                                            @elseif($service->category->name == 'Juridique')
+                                                @elseif($service->category->name == 'Services juridiques')
                                             <i class="fas fa-gavel mr-2"></i>
-                                            @elseif($service->category->name == 'Beauté & Spa')
+                                                @elseif($service->category->name == 'Beauty Salon & Spas')
                                             <i class="fas fa-spa mr-2"></i>
-                                            @elseif($service->category->name == 'Hôtel')
+                                                @elseif($service->category->name == 'Hotel')
                                             <i class="fas fa-hotel mr-2"></i>
                                             @elseif($service->category->name == 'Restaurant')
                                             <i class="fas fa-utensils mr-2"></i>
                                             @else
                                             <i class="fas fa-tag mr-2"></i>
                                             @endif
-                                            <span class="text-sm font-medium">{{ $service->category->name ?: 'Service' }}</span>
+                                                <span class="text-sm font-medium">{{ $service->category->name }}</span>
+                                            @else
+                                                <i class="fas fa-tag mr-2"></i>
+                                                <span class="text-sm font-medium">Non catégorisé</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -496,20 +501,25 @@
                                     <img src="{{ $service->image_url ?? 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80' }}" alt="{{ $service->name }}" class="w-full h-48 object-cover">
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                                         <div class="flex items-center text-white">
-                                            @if($service->category->name == 'Médical')
+                                            @if($service->category)
+                                                @if($service->category->name == 'Doctors & Hospitals')
                                             <i class="fas fa-stethoscope mr-2"></i>
-                                            @elseif($service->category->name == 'Juridique')
+                                                @elseif($service->category->name == 'Services juridiques')
                                             <i class="fas fa-gavel mr-2"></i>
-                                            @elseif($service->category->name == 'Beauté & Spa')
+                                                @elseif($service->category->name == 'Beauty Salon & Spas')
                                             <i class="fas fa-spa mr-2"></i>
-                                            @elseif($service->category->name == 'Hôtel')
+                                                @elseif($service->category->name == 'Hotel')
                                             <i class="fas fa-hotel mr-2"></i>
                                             @elseif($service->category->name == 'Restaurant')
                                             <i class="fas fa-utensils mr-2"></i>
                                             @else
                                             <i class="fas fa-tag mr-2"></i>
                                             @endif
-                                            <span class="text-sm font-medium">{{ $service->category->name ?: 'Service' }}</span>
+                                                <span class="text-sm font-medium">{{ $service->category->name }}</span>
+                                            @else
+                                                <i class="fas fa-tag mr-2"></i>
+                                                <span class="text-sm font-medium">Non catégorisé</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -600,19 +610,19 @@
                     <h3 class="text-sm font-bold">Secteurs</h3>
                     <nav class="flex flex-col gap-2">
                         <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-                            Médecins & Hôpitaux
+                            Doctors & Hospitals
                         </a>
                         <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-                            Services Juridiques
+                            Beauty Salon & Spas
                         </a>
                         <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-                            Salons de Beauté & Spas
+                            Services juridiques
                         </a>
                         <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-                            Hôtels
+                            Hotel
                         </a>
                         <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-                            Restaurants
+                            Restaurant
                         </a>
                     </nav>
                 </div>

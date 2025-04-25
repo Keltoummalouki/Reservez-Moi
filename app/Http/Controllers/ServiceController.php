@@ -45,6 +45,9 @@ class ServiceController extends Controller
         ]);
 
         try {
+            // Ensure is_available is properly handled
+            $validated['is_available'] = $request->boolean('is_available');
+            
             $service = new Service($validated);
             $service->provider_id = auth()->id();
             $service->save();
@@ -71,7 +74,11 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'is_available' => 'boolean',
         ]);
+
+        // Ensure is_available is properly handled
+        $validated['is_available'] = $request->boolean('is_available');
 
         $service->update($validated);
 
@@ -83,6 +90,6 @@ class ServiceController extends Controller
     {
         $service->delete();
 
-        return redirect()->route('provider.services')->with('success', 'Service supprimé avec succès !');
+        return redirect()->route('provider.services.index')->with('success', 'Service supprimé avec succès !');
     }
 }

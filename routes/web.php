@@ -193,7 +193,7 @@ Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provide
     Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
 
     // Services
-    Route::get('/services', [ServiceController::class, 'index'])->name('services');
+    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
     Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
     Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
     Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');

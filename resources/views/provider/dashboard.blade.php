@@ -114,7 +114,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
@@ -182,7 +182,7 @@
                         </div>
                     </div>
                     <div class="mt-4 text-sm">
-                        <a href="{{ route('provider.services') }}" class="text-primary-600 font-medium flex items-center hover:underline">
+                        <a href="{{ route('provider.services.index') }}" class="text-primary-600 font-medium flex items-center hover:underline">
                             <span>Gérer mes services</span>
                             <i class="fas fa-arrow-right ml-1 text-xs"></i>
                         </a>

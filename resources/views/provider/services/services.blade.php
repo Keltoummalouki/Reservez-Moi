@@ -113,7 +113,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>

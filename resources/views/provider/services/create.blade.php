@@ -113,7 +113,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
@@ -168,7 +168,7 @@
         <!-- Form Content -->
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
-                <a href="{{ route('provider.services') }}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-800">
+                <a href="{{ route('provider.services.index') }}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-800">
                     <i class="fas fa-arrow-left mr-2"></i> Retour aux services
                 </a>
             </div>
@@ -247,7 +247,7 @@
                     </div>
                     
                     <div class="flex justify-end pt-6 border-t border-gray-200">
-                        <a href="{{ route('provider.services') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
+                        <a href="{{ route('provider.services.index') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
                             Annuler
                         </a>
                         <button type="submit" class="bg-primary-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-primary-700 focus:outline-none">

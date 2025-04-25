@@ -113,7 +113,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
@@ -168,7 +168,7 @@
         <!-- Form Content -->
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
-                <a href="{{ route('provider.services') }}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-800">
+                <a href="{{ route('provider.services.index') }}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-800">
                     <i class="fas fa-arrow-left mr-2"></i> Retour aux services
                 </a>
             </div>
@@ -222,15 +222,14 @@
                         
                         <!-- Service Category -->
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                            <select name="category" id="category" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Catégorie <span class="text-red-500">*</span></label>
+                            <select name="category_id" id="category_id" required class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Sélectionnez une catégorie</option>
-                                <option value="Médical" {{ old('category', $service->category) == 'Médical' ? 'selected' : '' }}>Médical</option>
-                                <option value="Juridique" {{ old('category', $service->category) == 'Juridique' ? 'selected' : '' }}>Juridique</option>
-                                <option value="Beauté & Spa" {{ old('category', $service->category) == 'Beauté & Spa' ? 'selected' : '' }}>Beauté & Spa</option>
-                                <option value="Hôtel" {{ old('category', $service->category) == 'Hôtel' ? 'selected' : '' }}>Hôtel</option>
-                                <option value="Restaurant" {{ old('category', $service->category) == 'Restaurant' ? 'selected' : '' }}>Restaurant</option>
-                                <option value="Autre" {{ old('category', $service->category) == 'Autre' ? 'selected' : '' }}>Autre</option>
+                                <option value="1" {{ old('category_id', $service->category_id) == 1 ? 'selected' : '' }}>Doctors & Hospitals</option>
+                                <option value="2" {{ old('category_id', $service->category_id) == 2 ? 'selected' : '' }}>Beauty Salon & Spas</option>
+                                <option value="3" {{ old('category_id', $service->category_id) == 3 ? 'selected' : '' }}>Services juridiques</option>
+                                <option value="4" {{ old('category_id', $service->category_id) == 4 ? 'selected' : '' }}>Hotel</option>
+                                <option value="5" {{ old('category_id', $service->category_id) == 5 ? 'selected' : '' }}>Restaurant</option>
                             </select>
                         </div>
                     </div>
@@ -238,6 +237,7 @@
                     <!-- Service Availability -->
                     <div class="mb-6">
                         <div class="flex items-center">
+                            <input type="hidden" name="is_available" value="0">
                             <input type="checkbox" name="is_available" id="is_available" value="1" {{ old('is_available', $service->is_available) ? 'checked' : '' }} class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
                             <label for="is_available" class="ml-2 block text-sm text-gray-700">
                                 Service disponible pour réservation
@@ -246,7 +246,7 @@
                     </div>
                     
                     <div class="flex justify-end pt-6 border-t border-gray-200">
-                        <a href="{{ route('provider.services') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
+                        <a href="{{ route('provider.services.index') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
                             Annuler
                         </a>
                         <button type="submit" class="bg-primary-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-primary-700 focus:outline-none">
