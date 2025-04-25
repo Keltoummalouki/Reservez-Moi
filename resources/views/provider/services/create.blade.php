@@ -221,16 +221,18 @@
                         
                         <!-- Service Category -->
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                            <select name="category" id="category" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Catégorie <span class="text-red-500">*</span></label>
+                            <select name="category_id" id="category_id" required class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Sélectionnez une catégorie</option>
-                                <option value="Médical" {{ old('category') == 'Médical' ? 'selected' : '' }}>Médical</option>
-                                <option value="Juridique" {{ old('category') == 'Juridique' ? 'selected' : '' }}>Juridique</option>
-                                <option value="Beauté & Spa" {{ old('category') == 'Beauté & Spa' ? 'selected' : '' }}>Beauté & Spa</option>
-                                <option value="Hôtel" {{ old('category') == 'Hôtel' ? 'selected' : '' }}>Hôtel</option>
-                                <option value="Restaurant" {{ old('category') == 'Restaurant' ? 'selected' : '' }}>Restaurant</option>
-                                <option value="Autre" {{ old('category') == 'Autre' ? 'selected' : '' }}>Autre</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
                             </select>
+                            @error('category_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     

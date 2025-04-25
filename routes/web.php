@@ -27,6 +27,8 @@ use App\Models\Role;
 use App\Models\ServiceProvider;
 use App\Models\Category;
 use App\Http\Controllers\Provider\StatisticsController;
+use App\Http\Controllers\Provider\ProfileController as ProviderProfileController;
+use App\Http\Controllers\Provider\SettingsController as ProviderSettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -180,9 +182,15 @@ Route::middleware(['auth', 'role:Client', 'throttle:10,1'])->prefix('client')->n
 });
 
 // Routes pour les prestataires de services
-Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provider')->name('provider.')->group(function () {
-    // Tableau de bord
+Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provider')->name('provider.')->group(function () {
+    // Route pour le profil initial
+    Route::get('/profile/setup', [ProviderProfileController::class, 'showSetupForm'])->name('profile.setup');
+    Route::post('/profile/setup', [ProviderProfileController::class, 'setupProfile'])->name('profile.setup.submit');
+    
+    // Routes existantes
     Route::get('/dashboard', [ProviderDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
+    Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
 
     // Services
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
@@ -210,8 +218,6 @@ Route::middleware(['auth', 'role:ServiceProvider', 'verified'])->prefix('provide
 
     Route::put('/provider/availability/{serviceId}/update-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'updateWeekly'])
     ->name('provider.availability.update-weekly');
-
-    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
 });
 
 // Routes pour les administrateurs
