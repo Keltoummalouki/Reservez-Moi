@@ -12,17 +12,34 @@ class Availability extends Model
 
     protected $fillable = [
         'service_id',
+        'specific_date',
+        'day_of_week',
         'start_time',
         'end_time',
         'is_available',
-        'max_reservations'
+        'max_reservations',
+        'recurrence_type',
+        'recurrence_config',
+        'valid_from',
+        'valid_until',
+        'is_template',
+        'template_name',
+        'preparation_time',
+        'slot_duration',
+        'breaks',
+        'external_calendar_id',
+        'external_event_id',
+        'priority'
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'specific_date' => 'date',
         'is_available' => 'boolean',
-        'max_reservations' => 'integer'
+        'recurrence_config' => 'array',
+        'breaks' => 'array',
+        'valid_from' => 'date',
+        'valid_until' => 'date',
+        'is_template' => 'boolean'
     ];
 
     /**
@@ -125,78 +142,85 @@ class Availability extends Model
      */
     public static function getAvailableSlots($serviceId, $date)
     {
-        $dateObj = Carbon::parse($date);
-        $dayOfWeek = $dateObj->dayOfWeek;
+        $service = Service::findOrFail($serviceId);
+        $date = Carbon::parse($date);
+        $dayOfWeek = $date->dayOfWeek;
         
-        // Obtenir les disponibilités hebdomadaires pour ce jour de la semaine
-        $weeklySlots = self::where('service_id', $serviceId)
-            ->whereNull('specific_date')
-            ->where('day_of_week', $dayOfWeek)
+        // Récupérer les disponibilités spécifiques pour cette date
+        $specificAvailabilities = self::where('service_id', $serviceId)
+            ->where('specific_date', $date->format('Y-m-d'))
             ->where('is_available', true)
             ->get();
             
-        // Obtenir les disponibilités/indisponibilités spécifiques pour cette date
-        $specificSlots = self::where('service_id', $serviceId)
-            ->where('specific_date', $date)
+        // Récupérer les disponibilités hebdomadaires
+        $weeklyAvailabilities = self::where('service_id', $serviceId)
+            ->whereNull('specific_date')
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_available', true)
+            ->where(function ($query) use ($date) {
+                $query->whereNull('valid_until')
+                      ->orWhere('valid_until', '>=', $date);
+            })
+            ->where(function ($query) use ($date) {
+                $query->whereNull('valid_from')
+                      ->orWhere('valid_from', '<=', $date);
+            })
             ->get();
             
-        $availableSlots = [];
+        $availabilities = $specificAvailabilities->count() > 0 ? $specificAvailabilities : $weeklyAvailabilities;
         
-        // Traiter les créneaux hebdomadaires
-        foreach ($weeklySlots as $slot) {
-            // Vérifier si ce créneau n'est pas annulé par une exception spécifique
-            $isOverridden = $specificSlots->contains(function ($specificSlot) use ($slot) {
-                return !$specificSlot->is_available && 
-                       self::timesOverlap($slot->start_time, $slot->end_time, 
-                                         $specificSlot->start_time, $specificSlot->end_time);
-            });
+        $slots = collect();
+        
+        foreach ($availabilities as $availability) {
+            // Générer les créneaux en fonction de la durée du service et du temps de préparation
+            $startTime = Carbon::parse($availability->start_time);
+            $endTime = Carbon::parse($availability->end_time);
+            $slotDuration = $availability->slot_duration ?? $service->duration;
+            $preparationTime = $availability->preparation_time ?? 0;
             
-            if (!$isOverridden) {
-                // Vérifier le nombre de réservations existantes
-                $reservationCount = Reservation::where('service_id', $serviceId)
-                ->whereDate('reservation_date', $date)
-                ->whereRaw("TIME(reservation_date) >= ?", [$slot->start_time])
-                ->whereRaw("TIME(reservation_date) <= ?", [$slot->end_time])
-                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                ->count();
+            // Gérer les pauses
+            $breaks = $availability->breaks ?? [];
+            
+            while ($startTime->copy()->addMinutes($slotDuration) <= $endTime) {
+                $slotEndTime = $startTime->copy()->addMinutes($slotDuration);
                 
-                if ($reservationCount < $slot->max_reservations) {
-                    $availableSlots[] = [
-                        'start_time' => $slot->start_time,
-                        'end_time' => $slot->end_time,
-                        'available_spots' => $slot->max_reservations - $reservationCount
-                    ];
+                // Vérifier si le créneau chevauche une pause
+                $isInBreak = false;
+                foreach ($breaks as $break) {
+                    $breakStart = Carbon::parse($break['start']);
+                    $breakEnd = Carbon::parse($break['end']);
+                    
+                    if ($startTime->between($breakStart, $breakEnd) || 
+                        $slotEndTime->between($breakStart, $breakEnd)) {
+                        $isInBreak = true;
+                        break;
+                    }
                 }
+                
+                if (!$isInBreak) {
+                    // Compter les réservations existantes
+                    $reservations = Reservation::where('service_id', $serviceId)
+                        ->whereDate('reservation_date', $date)
+                        ->whereTime('reservation_date', '>=', $startTime->format('H:i:s'))
+                        ->whereTime('reservation_date', '<', $slotEndTime->format('H:i:s'))
+                        ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
+                        ->count();
+                        
+                    if ($reservations < $availability->max_reservations) {
+                        $slots->push([
+                            'start_time' => $startTime->format('H:i:s'),
+                            'end_time' => $slotEndTime->format('H:i:s'),
+                            'available_spots' => $availability->max_reservations - $reservations
+                        ]);
+                    }
+                }
+                
+                // Ajouter le temps de préparation pour le prochain créneau
+                $startTime->addMinutes($slotDuration + $preparationTime);
             }
         }
         
-        // Ajouter les créneaux spécifiques disponibles à cette date
-        foreach ($specificSlots as $slot) {
-            if ($slot->is_available) {
-                // Vérifier le nombre de réservations existantes
-                $reservationCount = Reservation::where('service_id', $serviceId)
-                ->whereDate('reservation_date', $date)
-                ->whereRaw("TIME(reservation_date) >= ?", [$slot->start_time])
-                ->whereRaw("TIME(reservation_date) <= ?", [$slot->end_time])
-                ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
-                ->count();
-                
-                if ($reservationCount < $slot->max_reservations) {
-                    $availableSlots[] = [
-                        'start_time' => $slot->start_time,
-                        'end_time' => $slot->end_time,
-                        'available_spots' => $slot->max_reservations - $reservationCount
-                    ];
-                }
-            }
-        }
-        
-        // Trier les créneaux par heure de début
-        usort($availableSlots, function ($a, $b) {
-            return strcmp($a['start_time'], $b['start_time']);
-        });
-        
-        return $availableSlots;
+        return $slots;
     }
     
     /**
@@ -224,5 +248,59 @@ class Availability extends Model
             ->count();
 
         return $reservationsCount < $this->max_reservations;
+    }
+
+    /**
+     * Vérifier les chevauchements avec d'autres disponibilités
+     */
+    public function hasOverlap()
+    {
+        $query = self::where('service_id', $this->service_id)
+            ->where('id', '!=', $this->id);
+            
+        if ($this->specific_date) {
+            $query->where('specific_date', $this->specific_date);
+        } else {
+            $query->whereNull('specific_date')
+                  ->where('day_of_week', $this->day_of_week);
+        }
+        
+        return $query->where(function ($q) {
+            $q->where(function ($q2) {
+                $q2->where('start_time', '<', $this->end_time)
+                   ->where('end_time', '>', $this->start_time);
+            });
+        })->exists();
+    }
+
+    /**
+     * Fusionner avec une autre disponibilité
+     */
+    public function mergeWith(Availability $other)
+    {
+        $this->start_time = min($this->start_time, $other->start_time);
+        $this->end_time = max($this->end_time, $other->end_time);
+        $this->max_reservations = max($this->max_reservations, $other->max_reservations);
+        $this->save();
+        
+        $other->delete();
+        
+        return $this;
+    }
+
+    /**
+     * Diviser une disponibilité en deux
+     */
+    public function splitAt($time)
+    {
+        $newAvailability = $this->replicate();
+        
+        $this->end_time = $time;
+        $this->save();
+        
+        $newAvailability->start_time = $time;
+        $newAvailability->save();
+        
+        return [$this, $newAvailability];
     }
 }

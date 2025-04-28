@@ -113,7 +113,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
@@ -212,20 +212,56 @@
             <!-- Form -->
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
-                    <form action="{{ route('provider.availability.store-weekly', $service->id) }}" method="POST" class="space-y-6">
+                    <form action="/provider/services/{{ $service->id }}/availability/weekly" method="POST" class="space-y-6">
                         @csrf
+                        
+                        <!-- Service Selector -->
                         <div>
-                            <label for="day_of_week" class="block text-sm font-medium text-gray-700">Jour de la semaine</label>
-                            <select id="day_of_week" name="day_of_week" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md" required>
-                                <option value="" disabled selected>Sélectionnez un jour</option>
-                                <option value="1" {{ old('day_of_week') == 1 ? 'selected' : '' }}>Lundi</option>
-                                <option value="2" {{ old('day_of_week') == 2 ? 'selected' : '' }}>Mardi</option>
-                                <option value="3" {{ old('day_of_week') == 3 ? 'selected' : '' }}>Mercredi</option>
-                                <option value="4" {{ old('day_of_week') == 4 ? 'selected' : '' }}>Jeudi</option>
-                                <option value="5" {{ old('day_of_week') == 5 ? 'selected' : '' }}>Vendredi</option>
-                                <option value="6" {{ old('day_of_week') == 6 ? 'selected' : '' }}>Samedi</option>
-                                <option value="0" {{ old('day_of_week') === '0' ? 'selected' : '' }}>Dimanche</option>
+                            <label for="service_id" class="block text-sm font-medium text-gray-700">Sélectionnez un service</label>
+                            <select id="service_id" name="service_id" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md" required>
+                                <option value="" disabled>Choisissez un service</option>
+                                @foreach($services as $serviceOption)
+                                    <option value="{{ $serviceOption->id }}" {{ $service->id == $serviceOption->id ? 'selected' : '' }}>
+                                        {{ $serviceOption->name }}
+                                    </option>
+                                @endforeach
                             </select>
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez le service pour lequel vous souhaitez ajouter une disponibilité</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jours de la semaine</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_1" name="days_of_week[]" value="1" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_1" class="ml-2 block text-sm text-gray-700">Lundi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_2" name="days_of_week[]" value="2" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_2" class="ml-2 block text-sm text-gray-700">Mardi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_3" name="days_of_week[]" value="3" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_3" class="ml-2 block text-sm text-gray-700">Mercredi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_4" name="days_of_week[]" value="4" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_4" class="ml-2 block text-sm text-gray-700">Jeudi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_5" name="days_of_week[]" value="5" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_5" class="ml-2 block text-sm text-gray-700">Vendredi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_6" name="days_of_week[]" value="6" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_6" class="ml-2 block text-sm text-gray-700">Samedi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="day_0" name="days_of_week[]" value="0" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="day_0" class="ml-2 block text-sm text-gray-700">Dimanche</label>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500">Sélectionnez un ou plusieurs jours de la semaine</p>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -286,6 +322,17 @@
                 });
             }
             
+            // Service selector change handler
+            const serviceSelector = document.getElementById('service_id');
+            if (serviceSelector) {
+                serviceSelector.addEventListener('change', function() {
+                    const serviceId = this.value;
+                    if (serviceId) {
+                        window.location.href = `/provider/services/${serviceId}/availability/weekly/create`;
+                    }
+                });
+            }
+
             // Highlight current page in sidebar
             const currentPath = window.location.pathname;
             const sidebarItems = document.querySelectorAll('.sidebar-item');

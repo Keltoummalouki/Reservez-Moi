@@ -225,13 +225,13 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     
     // Routes pour les prestataires
-    Route::get('/service-providers', [AdminServiceProviderController::class, 'index'])->name('service_providers');
-    Route::get('/service-providers/create', [AdminServiceProviderController::class, 'create'])->name('service_providers.create');
-    Route::post('/service-providers', [AdminServiceProviderController::class, 'store'])->name('service_providers.store');
-    Route::get('/service-providers/{provider}', [AdminServiceProviderController::class, 'show'])->name('service_providers.show');
-    Route::get('/service-providers/{provider}/edit', [AdminServiceProviderController::class, 'edit'])->name('service_providers.edit');
-    Route::put('/service-providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
-    Route::delete('/service-providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
+    Route::get('/providers', [AdminServiceProviderController::class, 'index'])->name('providers');
+    Route::get('/providers/create', [AdminServiceProviderController::class, 'create'])->name('providers.create');
+    Route::post('/providers', [AdminServiceProviderController::class, 'store'])->name('providers.store');
+    Route::get('/providers/{provider}', [AdminServiceProviderController::class, 'show'])->name('providers.show');
+    Route::get('/providers/{provider}/edit', [AdminServiceProviderController::class, 'edit'])->name('providers.edit');
+    Route::put('/providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('providers.update');
+    Route::delete('/providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('providers.destroy');
     
     // Routes pour les services
     Route::get('/services', [AdminServicesController::class, 'index'])->name('services');
@@ -256,6 +256,14 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     // Routes pour les paramètres
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('/service-providers', [AdminServiceProviderController::class, 'index'])->name('service_providers');
+    Route::get('/service-providers/create', [AdminServiceProviderController::class, 'create'])->name('service_providers.create');
+    Route::post('/service-providers', [AdminServiceProviderController::class, 'store'])->name('service_providers.store');
+    Route::get('/service-providers/{provider}', [AdminServiceProviderController::class, 'show'])->name('service_providers.show');
+    Route::get('/service-providers/{provider}/edit', [AdminServiceProviderController::class, 'edit'])->name('service_providers.edit');
+    Route::put('/service-providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
+    Route::delete('/service-providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
 });
 
 // Routes pour le système de paiement PayPal
@@ -265,3 +273,5 @@ Route::middleware(['auth'])->prefix('paypal')->name('paypal.')->group(function (
     Route::get('/cancel', [PayPalController::class, 'cancel'])->name('cancel');
     Route::post('/webhook', [PayPalController::class, 'webhook'])->name('webhook');
 });
+
+Route::redirect('/admin/service-providers', '/admin/providers');

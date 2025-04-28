@@ -42,6 +42,7 @@ class ServiceController extends Controller
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'is_available' => 'boolean',
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:5120', // 5MB max
         ]);
 
         try {
@@ -51,6 +52,20 @@ class ServiceController extends Controller
             $service = new Service($validated);
             $service->provider_id = auth()->id();
             $service->save();
+
+            // Handle photo uploads
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $index => $photo) {
+                    $filename = time() . '_' . $index . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('public/service-photos', $filename);
+
+                    $service->photos()->create([
+                        'filename' => $filename,
+                        'is_primary' => $index === 0, // First photo is primary
+                        'order' => $index
+                    ]);
+                }
+            }
 
             return redirect()->route('provider.services.index')
                 ->with('success', 'Service créé avec succès.');

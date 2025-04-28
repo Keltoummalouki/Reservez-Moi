@@ -27,18 +27,88 @@ class ProviderAvailabilityController extends Controller
      */
     public function index(Service $service)
     {
-        $availabilities = $service->availabilities()
-            ->get()
-            ->map(function ($availability) {
-                return [
-                    'title' => $availability->is_available ? 'Disponible' : 'Indisponible',
-                    'start' => $availability->start_time,
-                    'end' => $availability->end_time,
-                    'className' => $availability->is_available ? 'available' : 'unavailable'
-                ];
-            });
+        $availabilities = collect();
+        
+        // Récupérer toutes les disponibilités du service
+        $serviceAvailabilities = $service->availabilities()
+            ->where(function($query) {
+                $query->whereNotNull('specific_date')
+                      ->orWhereNotNull('day_of_week');
+            })
+            ->get();
+        
+        $today = now()->startOfWeek();
+        
+        foreach ($serviceAvailabilities as $availability) {
+            if ($availability->specific_date) {
+                // Pour les disponibilités spécifiques
+                $availabilities->push([
+                    'id' => $availability->id,
+                    'title' => $this->formatAvailabilityTitle($availability),
+                    'start' => $availability->specific_date . ' ' . $availability->start_time,
+                    'end' => $availability->specific_date . ' ' . $availability->end_time,
+                    'className' => $availability->is_available ? 'available' : 'unavailable',
+                    'max_reservations' => $availability->max_reservations,
+                    'type' => 'specific'
+                ]);
+            } else {
+                // Pour les disponibilités hebdomadaires
+                // Générer les 4 prochaines semaines
+                for ($week = 0; $week < 4; $week++) {
+                    $date = $today->copy()->addWeeks($week);
+                    $dayOfWeek = $availability->day_of_week;
+                    
+                    // Ajuster au bon jour de la semaine
+                    $date = $date->copy()->startOfWeek();
+                    if ($dayOfWeek == 0) {
+                        $date->endOfWeek(); // Dimanche
+                    } else {
+                        $date->addDays($dayOfWeek);
+                    }
+                    
+                    // Vérifier s'il n'y a pas de disponibilité spécifique qui override
+                    $hasSpecificOverride = $service->availabilities()
+                        ->whereDate('specific_date', $date->format('Y-m-d'))
+                        ->exists();
+                        
+                    if (!$hasSpecificOverride) {
+                        $availabilities->push([
+                            'id' => $availability->id,
+                            'title' => $this->formatAvailabilityTitle($availability),
+                            'start' => $date->format('Y-m-d') . ' ' . $availability->start_time,
+                            'end' => $date->format('Y-m-d') . ' ' . $availability->end_time,
+                            'className' => 'available recurring',
+                            'max_reservations' => $availability->max_reservations,
+                            'type' => 'weekly'
+                        ]);
+                    }
+                }
+            }
+        }
 
         return view('provider.availability.index', compact('service', 'availabilities'));
+    }
+
+    /**
+     * Formater le titre de la disponibilité
+     */
+    private function formatAvailabilityTitle($availability)
+    {
+        if (!$availability->is_available) {
+            return 'Indisponible';
+        }
+
+        $maxReservations = $availability->max_reservations;
+        $startTime = Carbon::parse($availability->start_time)->format('H:i');
+        $endTime = Carbon::parse($availability->end_time)->format('H:i');
+        
+        return sprintf(
+            'Disponible (%d place%s) %s-%s',
+            $maxReservations,
+            $maxReservations > 1 ? 's' : '',
+            $startTime,
+            $endTime
+        );
     }
 
     /**
@@ -54,7 +124,10 @@ class ProviderAvailabilityController extends Controller
             ->where('provider_id', Auth::id())
             ->firstOrFail();
             
-        return view('provider.availability.create_weekly', compact('service'));
+        // Récupérer tous les services du prestataire
+        $services = Service::where('provider_id', Auth::id())->get();
+            
+        return view('provider.availability.create_weekly', compact('service', 'services'));
     }
 
     /**
@@ -73,45 +146,59 @@ class ProviderAvailabilityController extends Controller
             
         // Valider les données du formulaire
         $validated = $request->validate([
-            'day_of_week' => 'required|integer|between:0,6',
+            'days_of_week' => 'required|array',
+            'days_of_week.*' => 'required|integer|between:0,6',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'max_reservations' => 'required|integer|min:1',
         ]);
         
         // Convertir les heures au format H:i:s
-        $validated['start_time'] = $validated['start_time'] . ':00';
-        $validated['end_time'] = $validated['end_time'] . ':00';
+        $startTime = $validated['start_time'] . ':00';
+        $endTime = $validated['end_time'] . ':00';
         
-        // Vérifier s'il y a un chevauchement avec une disponibilité existante
-        $overlap = Availability::where('service_id', $serviceId)
-            ->whereNull('specific_date')
-            ->where('day_of_week', $validated['day_of_week'])
-            ->where(function ($query) use ($validated) {
-                $query->where(function ($q) use ($validated) {
-                    $q->where('start_time', '<', $validated['end_time'])
-                      ->where('end_time', '>', $validated['start_time']);
-                });
-            })
-            ->exists();
-            
-        if ($overlap) {
-            return back()->withErrors(['overlap' => 'Ce créneau chevauche une disponibilité existante.'])
-                         ->withInput();
+        $successCount = 0;
+        $errorCount = 0;
+        
+        foreach ($validated['days_of_week'] as $dayOfWeek) {
+            // Vérifier s'il y a un chevauchement avec une disponibilité existante
+            $overlap = Availability::where('service_id', $serviceId)
+                ->whereNull('specific_date')
+                ->where('day_of_week', $dayOfWeek)
+                ->where(function ($query) use ($startTime, $endTime) {
+                    $query->where(function ($q) use ($startTime, $endTime) {
+                        $q->where('start_time', '<', $endTime)
+                          ->where('end_time', '>', $startTime);
+                    });
+                })
+                ->exists();
+                
+            if (!$overlap) {
+                // Créer la nouvelle disponibilité
+                Availability::create([
+                    'service_id' => $serviceId,
+                    'day_of_week' => $dayOfWeek,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'is_available' => true,
+                    'max_reservations' => $validated['max_reservations'],
+                ]);
+                $successCount++;
+            } else {
+                $errorCount++;
+            }
         }
         
-        // Créer la nouvelle disponibilité
-        Availability::create([
-            'service_id' => $serviceId,
-            'day_of_week' => $validated['day_of_week'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'is_available' => true,
-            'max_reservations' => $validated['max_reservations'],
-        ]);
+        if ($errorCount > 0) {
+            $message = $successCount > 0 
+                ? "Certaines disponibilités ont été ajoutées, mais {$errorCount} créneau(x) n'ont pas pu être ajoutés car ils chevauchent des disponibilités existantes."
+                : "Aucune disponibilité n'a pu être ajoutée car tous les créneaux chevauchent des disponibilités existantes.";
+            return redirect()->route('provider.availability.index', $serviceId)
+                           ->with('warning', $message);
+        }
         
         return redirect()->route('provider.availability.index', $serviceId)
-                        ->with('success', 'Disponibilité hebdomadaire ajoutée avec succès.');
+                        ->with('success', 'Les disponibilités hebdomadaires ont été ajoutées avec succès.');
     }
 
     /**
@@ -424,17 +511,36 @@ class ProviderAvailabilityController extends Controller
         ]);
 
         $date = Carbon::parse($request->date);
-
-        $availability = $service->availabilities()->updateOrCreate(
-            [
-                'start_time' => $date->startOfDay(),
-                'end_time' => $date->copy()->endOfDay(),
-            ],
-            [
-                'is_available' => $request->is_available,
-                'max_reservations' => $request->is_available ? 1 : 0
-            ]
-        );
+        
+        // Si c'est une disponibilité spécifique
+        if ($request->has('specific_date')) {
+            $availability = $service->availabilities()->updateOrCreate(
+                [
+                    'specific_date' => $date->format('Y-m-d'),
+                    'start_time' => $date->copy()->startOfDay()->format('H:i:s'),
+                    'end_time' => $date->copy()->endOfDay()->format('H:i:s'),
+                ],
+                [
+                    'is_available' => $request->is_available,
+                    'max_reservations' => $request->is_available ? 1 : 0,
+                    'day_of_week' => null // Explicitement null pour les dates spécifiques
+                ]
+            );
+        } else {
+            // Pour les disponibilités hebdomadaires
+            $availability = $service->availabilities()->updateOrCreate(
+                [
+                    'day_of_week' => $date->dayOfWeek,
+                    'start_time' => $date->copy()->startOfDay()->format('H:i:s'),
+                    'end_time' => $date->copy()->endOfDay()->format('H:i:s'),
+                ],
+                [
+                    'is_available' => $request->is_available,
+                    'max_reservations' => $request->is_available ? 1 : 0,
+                    'specific_date' => null // Explicitement null pour les disponibilités hebdomadaires
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,

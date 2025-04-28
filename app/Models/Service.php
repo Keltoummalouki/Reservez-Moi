@@ -38,4 +38,14 @@ class Service extends Model
     {
         return $this->hasMany(Availability::class);
     }
+
+    public function photos()
+    {
+        return $this->hasMany(ServicePhoto::class)->orderBy('order');
+    }
+
+    public function primaryPhoto()
+    {
+        return $this->hasOne(ServicePhoto::class)->where('is_primary', true);
+    }
 }

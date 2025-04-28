@@ -121,9 +121,9 @@
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-cog text-primary-300 w-5"></i>
-                    <span>Paramètres</span>
+                <a href="{{ route('provider.availability') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-clock text-primary-300 w-5"></i>
+                    <span>Disponibilités</span>
                 </a>
                 
                 <div class="pt-5 mt-5 border-t border-primary-700">
@@ -180,7 +180,7 @@
                     <p class="text-sm text-gray-600 mt-1">Créez un nouveau service à proposer à vos clients</p>
                 </div>
                 
-                <form action="{{ route('provider.services.store') }}" method="POST" class="p-6">
+                <form action="{{ route('provider.services.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     
                     <!-- Validation Errors -->
@@ -239,6 +239,7 @@
                     <!-- Service Availability -->
                     <div class="mb-6">
                         <div class="flex items-center">
+                            <input type="hidden" name="is_available" value="0">
                             <input type="checkbox" name="is_available" id="is_available" value="1" {{ old('is_available', 1) ? 'checked' : '' }} class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
                             <label for="is_available" class="ml-2 block text-sm text-gray-700">
                                 Service disponible pour réservation
@@ -246,11 +247,31 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-end pt-6 border-t border-gray-200">
-                        <a href="{{ route('provider.services.index') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
+                    <!-- Service Photos -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Photos du service</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="photos" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                        <span>Télécharger des photos</span>
+                                        <input id="photos" name="photos[]" type="file" class="sr-only" multiple accept="image/*">
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                            </div>
+                        </div>
+                        <div id="preview" class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"></div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <a href="{{ route('provider.services.index') }}" class="btn btn-secondary">
                             Annuler
                         </a>
-                        <button type="submit" class="bg-primary-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-primary-700 focus:outline-none">
+                        <button type="submit" class="btn btn-primary">
                             Créer le service
                         </button>
                     </div>
@@ -278,6 +299,40 @@
                     overlay.classList.remove('active');
                 });
             }
+            
+            // Image preview functionality
+            const input = document.getElementById('photos');
+            const preview = document.getElementById('preview');
+            
+            input.addEventListener('change', function() {
+                preview.innerHTML = ''; // Clear existing previews
+                
+                for (const file of this.files) {
+                    if (file) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'relative aspect-w-1 aspect-h-1 group';
+                            
+                            div.innerHTML = `
+                                <img src="${e.target.result}" alt="Aperçu" class="object-cover w-full h-48 rounded-lg">
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg">
+                                    <button type="button" class="text-white p-2" onclick="this.closest('.relative').remove();">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            `;
+                            
+                            preview.appendChild(div);
+                        }
+                        
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
             
             // Highlight current page in sidebar
             const currentPath = window.location.pathname;

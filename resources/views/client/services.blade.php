@@ -390,7 +390,15 @@
                             @forelse($services as $service)
                             <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1" data-aos="fade-up" data-aos-delay="100">
                                 <div class="relative">
-                                    <img src="{{ $service->image_url ?? 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80' }}" alt="{{ $service->name }}" class="w-full h-48 object-cover">
+                                    @if($service->photos->where('is_primary', true)->first())
+                                        <img src="{{ asset('storage/service-photos/' . $service->photos->where('is_primary', true)->first()->filename) }}" 
+                                             alt="{{ $service->name }}" 
+                                             class="w-full h-48 object-cover">
+                                    @else
+                                        <img src="{{ asset('images/default-service.jpg') }}" 
+                                             alt="{{ $service->name }}" 
+                                             class="w-full h-48 object-cover">
+                                    @endif
                                     @if($service->created_at && $service->created_at->diffInDays(now()) < 7)
                                     <span class="service-badge badge-new">Nouveau</span>
                                     @elseif(isset($service->reservations_count) && $service->reservations_count > 5)
@@ -498,7 +506,15 @@
                         <div class="swiper-slide">
                             <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
                                 <div class="relative">
-                                    <img src="{{ $service->image_url ?? 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80' }}" alt="{{ $service->name }}" class="w-full h-48 object-cover">
+                                    @if($service->photos->where('is_primary', true)->first())
+                                        <img src="{{ asset('storage/service-photos/' . $service->photos->where('is_primary', true)->first()->filename) }}" 
+                                             alt="{{ $service->name }}" 
+                                             class="w-full h-48 object-cover">
+                                    @else
+                                        <img src="{{ asset('images/default-service.jpg') }}" 
+                                             alt="{{ $service->name }}" 
+                                             class="w-full h-48 object-cover">
+                                    @endif
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                                         <div class="flex items-center text-white">
                                             @if($service->category)

@@ -115,7 +115,7 @@
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
@@ -123,9 +123,9 @@
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-cog text-primary-300 w-5"></i>
-                    <span>Paramètres</span>
+                <a href="{{ route('provider.availability') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-clock text-primary-300 w-5"></i>
+                    <span>Disponibilités</span>
                 </a>
                 
                 <div class="pt-5 mt-5 border-t border-primary-700">
@@ -432,7 +432,7 @@
                     modalContent.innerHTML = '<div class="flex justify-center"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>';
                     
                     // Fetch reservation details
-                    fetch(`/provider/reservations/${reservationId}/details`)
+                    fetch(`{{ url('/provider/reservations/') }}/${reservationId}/details`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
@@ -492,14 +492,14 @@
                                     </div>
                                     ${reservation.status === 'pending' ? `
                                     <div class="mt-6 flex space-x-3">
-                                        <form action="/provider/reservations/${reservation.id}/confirm" method="POST" class="inline">
+                                        <form action="{{ url('/provider/reservations/') }}/${reservation.id}/confirm" method="POST" class="inline">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors">
                                                 Confirmer
                                             </button>
                                         </form>
-                                        <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                        <form action="{{ url('/provider/reservations/') }}/${reservation.id}/cancel" method="POST" class="inline">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
@@ -510,7 +510,7 @@
                                     ` : ''}
                                     ${reservation.status === 'confirmed' ? `
                                     <div class="mt-6">
-                                        <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                        <form action="{{ url('/provider/reservations/') }}/${reservation.id}/cancel" method="POST" class="inline">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">

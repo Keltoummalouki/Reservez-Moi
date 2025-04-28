@@ -180,7 +180,7 @@
                     <p class="text-sm text-gray-600 mt-1">Mettez à jour les informations de votre service</p>
                 </div>
                 
-                <form action="{{ route('provider.services.update', $service->id) }}" method="POST" class="p-6">
+                <form action="{{ route('provider.services.update', $service->id) }}" method="POST" class="p-6" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     
@@ -245,6 +245,58 @@
                         </div>
                     </div>
                     
+                    <!-- Service Photos -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Photos du service</label>
+                        
+                        <!-- Existing Photos -->
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 mb-4">
+                            @foreach($service->photos as $photo)
+                            <div class="relative group aspect-w-1 aspect-h-1" id="photo-{{ $photo->id }}">
+                                <img src="{{ asset('storage/service-photos/' . $photo->filename) }}" alt="Photo du service" class="object-cover w-full h-48 rounded-lg">
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg">
+                                    <div class="flex space-x-2">
+                                        @if(!$photo->is_primary)
+                                        <button type="button" onclick="setPrimaryPhoto({{ $photo->id }})" class="text-white p-2" title="Définir comme photo principale">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                            </svg>
+                                        </button>
+                                        @endif
+                                        <button type="button" onclick="deletePhoto({{ $photo->id }})" class="text-white p-2" title="Supprimer la photo">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    @if($photo->is_primary)
+                                    <div class="absolute top-2 right-2">
+                                        <span class="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">Principale</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Upload New Photos -->
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="photos" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                        <span>Ajouter des photos</span>
+                                        <input id="photos" name="photos[]" type="file" class="sr-only" multiple accept="image/*">
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG jusqu'à 5MB</p>
+                            </div>
+                        </div>
+                        <div id="preview" class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"></div>
+                    </div>
+
                     <div class="flex justify-end pt-6 border-t border-gray-200">
                         <a href="{{ route('provider.services.index') }}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none mr-3">
                             Annuler
@@ -278,6 +330,40 @@
                 });
             }
             
+            // Image preview functionality
+            const input = document.getElementById('photos');
+            const preview = document.getElementById('preview');
+            
+            input.addEventListener('change', function() {
+                preview.innerHTML = ''; // Clear existing previews
+                
+                for (const file of this.files) {
+                    if (file) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'relative aspect-w-1 aspect-h-1 group';
+                            
+                            div.innerHTML = `
+                                <img src="${e.target.result}" alt="Aperçu" class="object-cover w-full h-48 rounded-lg">
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg">
+                                    <button type="button" class="text-white p-2" onclick="this.closest('.relative').remove();">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            `;
+                            
+                            preview.appendChild(div);
+                        }
+                        
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+            
             // Highlight current page in sidebar
             const currentPath = window.location.pathname;
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -291,6 +377,54 @@
                 }
             });
         });
+
+        // Photo management functions
+        function deletePhoto(photoId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
+                fetch(`/provider/service-photos/${photoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`photo-${photoId}`).remove();
+                    } else {
+                        alert('Erreur lors de la suppression de la photo');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erreur lors de la suppression de la photo');
+                });
+            }
+        }
+
+        function setPrimaryPhoto(photoId) {
+            fetch(`/provider/service-photos/${photoId}/set-primary`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to reflect changes
+                    window.location.reload();
+                } else {
+                    alert('Erreur lors de la définition de la photo principale');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la définition de la photo principale');
+            });
+        }
     </script>
 </body>
 </html>
