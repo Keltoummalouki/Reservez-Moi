@@ -14,11 +14,11 @@ class StatisticsController extends Controller
 {
     public function index()
     {
-        $provider = Auth::user()->provider;
+        $provider = Auth::user();
         
         // Statistiques principales
         $totalReservations = $provider->reservations()->count();
-        $totalRevenue = $provider->reservations()->where('status', 'completed')->sum('price');
+        $totalRevenue = $provider->reservations()->where('status', 'completed')->sum('amount');
         $averageRating = $provider->reviews()->avg('rating') ?? 0;
         $activeServices = $provider->services()->where('is_active', true)->count();
 
@@ -33,7 +33,7 @@ class StatisticsController extends Controller
         // Revenu par mois
         $revenueByMonth = $provider->reservations()
             ->where('status', 'completed')
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(price) as total')
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month')

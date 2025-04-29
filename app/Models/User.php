@@ -62,4 +62,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->roles()->where('name', $role)->exists();
     }
+
+    /**
+     * Get all reviews for services provided by this user (provider)
+     */
+    public function reviews()
+    {
+        return $this->hasManyThrough(
+            \App\Models\Review::class,
+            \App\Models\Service::class,
+            'provider_id', // Foreign key on Service table...
+            'service_id',  // Foreign key on Review table...
+            'id',          // Local key on User table...
+            'id'           // Local key on Service table...
+        );
+    }
 }

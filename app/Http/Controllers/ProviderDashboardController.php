@@ -146,15 +146,17 @@ class ProviderDashboardController extends Controller
             if (!$availability->specific_date) {
                 continue;
             }
-            
-            $reservationDate = Carbon::parse($availability->specific_date . ' ' . $availability->start_time);
-            $endTime = Carbon::parse($availability->specific_date . ' ' . $availability->end_time);
-            
+            $datePart = date('Y-m-d', strtotime($availability->specific_date));
+            $startTime = date('H:i:s', strtotime($availability->start_time));
+            $endTime = date('H:i:s', strtotime($availability->end_time));
+            $reservationDate = Carbon::parse($datePart . ' ' . $startTime);
+            $endTimeObj = Carbon::parse($datePart . ' ' . $endTime);
+
             $reservationsCount = Reservation::where('service_id', $availability->service_id)
                 ->whereDate('reservation_date', $availability->specific_date)
                 ->whereRaw('TIME(reservation_date) BETWEEN ? AND ?', [
-                    $availability->start_time,
-                    $availability->end_time
+                    $startTime,
+                    $endTime
                 ])
                 ->whereIn('status', [Reservation::STATUS_PENDING, Reservation::STATUS_CONFIRMED])
                 ->count();
