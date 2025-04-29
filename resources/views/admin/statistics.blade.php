@@ -171,12 +171,12 @@
                     </div>
                     
                     <div class="flex items-center space-x-4">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-file-export mr-2"></i> Exporter
-                        </button>
-                        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-redo-alt mr-2"></i> Actualiser
-                        </button>
+                        <form id="export-form" method="GET" action="{{ route('admin.statistics.export') }}" class="inline">
+                            <input type="hidden" name="period" id="export-period" value="30">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-export mr-2"></i> Exporter
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -187,7 +187,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Total Réservations</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $totalReservations ?? 0 }}</h3>
+                            <h3 id="total-reservations" class="text-2xl font-bold text-gray-800 mt-1">{{ $totalReservations ?? 0 }}</h3>
                         </div>
                         <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                             <i class="fas fa-calendar-check"></i>
@@ -205,7 +205,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Revenus</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $totalRevenue ?? '0' }} €</h3>
+                            <h3 id="total-revenue" class="text-2xl font-bold text-gray-800 mt-1">{{ $totalRevenue ?? '0' }} €</h3>
                         </div>
                         <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                             <i class="fas fa-euro-sign"></i>
@@ -223,7 +223,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Nouveaux Clients</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $newClients ?? 0 }}</h3>
+                            <h3 id="new-clients" class="text-2xl font-bold text-gray-800 mt-1">{{ $newClients ?? 0 }}</h3>
                         </div>
                         <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
                             <i class="fas fa-user-plus"></i>
@@ -241,7 +241,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Taux de conversion</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $conversionRate ?? '0' }}%</h3>
+                            <h3 id="conversion-rate" class="text-2xl font-bold text-gray-800 mt-1">{{ $conversionRate ?? '0' }}%</h3>
                         </div>
                         <div class="h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
                             <i class="fas fa-percentage"></i>
@@ -293,7 +293,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taux de conversion</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody id="top-services-tbody" class="bg-white divide-y divide-gray-200">
                                 @forelse($topServices ?? [] as $service)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -419,9 +419,11 @@
             
             // Period selector
             const periodSelector = document.getElementById('period-selector');
-            if (periodSelector) {
+            const exportPeriod = document.getElementById('export-period');
+            if (periodSelector && exportPeriod) {
+                exportPeriod.value = periodSelector.value;
                 periodSelector.addEventListener('change', function() {
-                    window.location.href = `{{ route('admin.statistics') }}?period=${this.value}`;
+                    exportPeriod.value = this.value;
                 });
             }
             
@@ -570,6 +572,40 @@
                         }
                     }
                 });
+            }
+
+            const periodSelector = document.getElementById('period-selector');
+            periodSelector.addEventListener('change', function() {
+                fetchStats(this.value);
+            });
+
+            function fetchStats(period) {
+                fetch(`{{ route('admin.statistics.ajax') }}?period=${period}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Met à jour les cards
+                        document.getElementById('total-reservations').textContent = data.totalReservations;
+                        document.getElementById('total-revenue').textContent = data.totalRevenue + ' €';
+                        document.getElementById('new-clients').textContent = data.newClients;
+                        document.getElementById('conversion-rate').textContent = data.conversionRate + '%';
+                        // ... mets à jour les autres stats
+
+                        // Met à jour le tableau des top services
+                        let tbody = '';
+                        data.topServices.forEach(service => {
+                            tbody += `<tr>
+                                <td>${service.name}</td>
+                                <td>${service.provider}</td>
+                                <td>${service.reservations}</td>
+                                <td>${service.revenue} €</td>
+                                <td><!-- taux de conversion ou autre --></td>
+                            </tr>`;
+                        });
+                        document.getElementById('top-services-tbody').innerHTML = tbody;
+
+                        // Met à jour les graphiques (exemple Chart.js)
+                        // updateCharts(data);
+                    });
             }
         });
     </script>

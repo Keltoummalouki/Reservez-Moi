@@ -252,10 +252,15 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     
     // Routes pour les statistiques
     Route::get('/statistics', [AdminStatisticsController::class, 'index'])->name('statistics');
+    Route::get('/statistics/export', [AdminStatisticsController::class, 'export'])->name('statistics.export');
+    Route::get('/statistics/ajax', [AdminStatisticsController::class, 'ajax'])->name('statistics.ajax');
     
     // Routes pour les paramètres
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
+    Route::put('/settings/security', [AdminSettingsController::class, 'updateSecurity'])->name('settings.security.update');
+    Route::put('/settings/payment', [AdminSettingsController::class, 'updatePayment'])->name('settings.payment.update');
+    Route::put('/settings/emails', [AdminSettingsController::class, 'updateEmails'])->name('settings.emails.update');
 
     Route::get('/service-providers', [AdminServiceProviderController::class, 'index'])->name('service_providers');
     Route::get('/service-providers/create', [AdminServiceProviderController::class, 'create'])->name('service_providers.create');

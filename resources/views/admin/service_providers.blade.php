@@ -337,6 +337,9 @@
                                         </span>
                                         <span class="ml-2 text-gray-500">Revenus: {{ $provider->total_revenue ?? 0 }} €</span>
                                     </div>
+                                    <div class="mt-2 flex items-center text-sm">
+                                        <span>{{ $provider->total_reservations }} réservations</span>
+                                    </div>
                                 </div>
                             </div>
                             @endforeach

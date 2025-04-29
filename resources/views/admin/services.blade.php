@@ -8,6 +8,8 @@
     <title>Gestion des Services - Reservez-Moi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/sweetalert-config.js') }}"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -289,10 +291,10 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">
+                                            <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                                <button type="button" class="text-red-600 hover:text-red-900 delete-service-btn" title="Supprimer">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -322,69 +324,11 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">Services les plus réservés</h2>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($topServices as $service)
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">{{ $service->name }}</h3>
-                                <p class="text-sm text-gray-500">{{ $service->provider->name }}</p>
-                            </div>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <div>
-                                <p class="text-gray-500">Réservations</p>
-                                <p class="font-semibold">{{ $service->reservations_count }}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500">Prix</p>
-                                <p class="font-semibold">{{ $service->price }} €</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500">Durée</p>
-                                <p class="font-semibold">{{ $service->duration }} min</p>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
+                <div id="top-services-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Top services will be loaded here dynamically -->
                 </div>
             </div>
             
-            <!-- Categories Section -->
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-gray-800">Catégories de services</h2>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow p-6">
-                @if(count($categories) > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        @foreach($categories as $category)
-                        <div class="border rounded-lg p-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="font-semibold text-gray-900">{{ $category->name }}</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    {{ $category->services_count }} services
-                                </span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ ($category->services_count / $totalServices) * 100 }}%"></div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-4 text-gray-500">
-                        <p>Aucune catégorie disponible</p>
-                        <a href="#" class="inline-flex items-center text-blue-600 hover:underline mt-2">
-                            <i class="fas fa-plus mr-1"></i> Ajouter une catégorie
-                        </a>
-                    </div>
-                @endif
-            </div>
         </div>
     </main>
     
@@ -428,6 +372,65 @@
                     exportPeriod.value = this.value;
                 });
             }
+            
+            // SweetAlert2 for delete confirmation
+            document.querySelectorAll('.delete-service-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    SweetAlertHelper.confirm('deleteItem', function() {
+                        form.submit();
+                    });
+                });
+            });
+            
+            // Fetch and render top services dynamically
+            function renderTopServices(services) {
+                const container = document.getElementById('top-services-container');
+                if (!container) return;
+                if (!services.length) {
+                    container.innerHTML = '<div class="col-span-3 text-center text-gray-500">Aucun service trouvé</div>';
+                    return;
+                }
+                container.innerHTML = services.map(service => `
+                    <div class=\"bg-white rounded-lg shadow p-6\">
+                        <div class=\"flex items-center mb-4\">
+                            <div class=\"h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4\">
+                                <i class=\"fas fa-clipboard-list\"></i>
+                            </div>
+                            <div>
+                                <h3 class=\"text-lg font-semibold text-gray-900\">${service.name}</h3>
+                                <p class=\"text-sm text-gray-500\">${service.provider}</p>
+                            </div>
+                        </div>
+                        <div class=\"flex justify-between text-sm\">
+                            <div>
+                                <p class=\"text-gray-500\">Réservations</p>
+                                <p class=\"font-semibold\">${service.reservations}</p>
+                            </div>
+                            <div>
+                                <p class=\"text-gray-500\">Prix</p>
+                                <p class=\"font-semibold\">${service.price} €</p>
+                            </div>
+                            <div>
+                                <p class=\"text-gray-500\">Durée</p>
+                                <p class=\"font-semibold\">${service.duration} min</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function fetchTopServices() {
+                fetch('/admin/services/top')
+                    .then(response => response.json())
+                    .then(data => renderTopServices(data))
+                    .catch(() => {
+                        renderTopServices([]);
+                    });
+            }
+
+            fetchTopServices();
         });
     </script>
 </body>

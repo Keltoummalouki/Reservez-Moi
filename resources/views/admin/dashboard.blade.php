@@ -142,7 +142,7 @@
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden overlay"></div>
     
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed top-0 left-0 z-30 h-full w-64 bg-primary-800 text-white overflow-y-auto transition-transform custom-scrollbar">
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 z-30 h-full w-64 bg-blue-800 text-white overflow-y-auto transition-transform custom-scrollbar">
         <div class="p-5 border-b border-primary-700">
             <div class="flex items-center space-x-3">
                 <div class="bg-white rounded-full h-10 w-10 flex items-center justify-center">
