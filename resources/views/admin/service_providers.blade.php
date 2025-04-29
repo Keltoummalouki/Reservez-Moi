@@ -243,9 +243,6 @@
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">Prestataires de services</h2>
-                    <a href="{{ route('admin.service_providers.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                        <i class="fas fa-plus mr-2"></i> Ajouter un prestataire
-                    </a>
                 </div>
                 
                 <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -278,7 +275,7 @@
                                         {{ $provider->services->count() }} services
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $provider->created_at->format('d/m/Y') }}
+                                        {{ $provider->created_at ? $provider->created_at->format('d/m/Y') : 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -287,9 +284,6 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <a href="{{ route('admin.service_providers.edit', $provider->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
                                             <form action="{{ route('admin.service_providers.destroy', $provider->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')

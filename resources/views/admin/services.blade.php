@@ -237,9 +237,6 @@
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">Liste des services</h2>
-                    <a href="{{ route('admin.services.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                        <i class="fas fa-plus mr-2"></i> Ajouter un service
-                    </a>
                 </div>
                 
                 <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -292,9 +289,6 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <a href="{{ route('admin.services.edit', $service->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
                                             <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">
                                                 @csrf
                                                 @method('DELETE')
@@ -426,6 +420,14 @@
                     item.classList.remove('active');
                 }
             });
+            
+            const periodSelector = document.getElementById('period-selector');
+            const exportPeriod = document.getElementById('export-period');
+            if (periodSelector && exportPeriod) {
+                periodSelector.addEventListener('change', function() {
+                    exportPeriod.value = this.value;
+                });
+            }
         });
     </script>
 </body>
