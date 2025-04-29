@@ -123,7 +123,7 @@
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="{{ route('provider.availability') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ isset($services) && count($services) > 0 ? route('provider.availability.index', $services->first()->id) : route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-clock text-primary-300 w-5"></i>
                     <span>Disponibilités</span>
                 </a>

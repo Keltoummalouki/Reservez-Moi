@@ -122,7 +122,11 @@
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="#" class="sidebar-item {{ request()->routeIs('provider.settings*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.statistics') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-chart-bar text-primary-300 w-5"></i>
+                    <span>Statistiques</span>
+                </a>
+                <a href="{{ route('provider.settings') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-cog text-primary-300 w-5"></i>
                     <span>Paramètres</span>
                 </a>
@@ -503,7 +507,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         @if($availability->specific_date)
-                                            {{ \Carbon\Carbon::parse($availability->specific_date)->format('d/m/Y') }}
+                                            {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)))->format('d/m/Y') }}
                                         @else
                                             @switch($availability->day_of_week)
                                                 @case(0) Dimanche @break
@@ -517,7 +521,7 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ \Carbon\Carbon::parse($availability->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($availability->end_time)->format('H:i') }}
+                                        {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)) . ' ' . date('H:i:s', strtotime($availability->start_time)))->format('H:i') }} - {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)) . ' ' . date('H:i:s', strtotime($availability->end_time)))->format('H:i') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if($availability->is_available)
@@ -554,8 +558,6 @@
                                                 </a>
                                             @endif
                                         </div>                         
-                                        <tr class="hover:bg-gray-50">
-   
                                     </td>
                                 </tr>
                                 @endforelse
