@@ -670,8 +670,8 @@
                         <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mb-4 group-hover:bg-primary-200 transition-colors">
                             <i class="fas fa-user-plus text-xl"></i>
                         </div>
-                        <h3 class="text-base font-medium text-gray-900 mb-1">Ajouter un prestataire</h3>
-                        <p class="text-sm text-gray-500">Créer un nouveau compte prestataire</p>
+                        <h3 class="text-base font-medium text-gray-900 mb-1">Gestion des prestataires</h3>
+                        <p class="text-sm text-gray-500">Consulter et gérer les prestataire</p>
                     </a>
                     
                     <a href="{{ route('admin.services') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group">
@@ -679,7 +679,7 @@
                             <i class="fas fa-clipboard-list text-xl"></i>
                         </div>
                         <h3 class="text-base font-medium text-gray-900 mb-1">Gérer les services</h3>
-                        <p class="text-sm text-gray-500">Consulter et modifier les services</p>
+                        <p class="text-sm text-gray-500">Consulter et gérer les services</p>
                     </a>
                     
                     <a href="{{ route('admin.statistics') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group">
