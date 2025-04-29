@@ -13,12 +13,13 @@ class CreateAvailabilityTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('availability_templates', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('availability_templates')) {
+            Schema::create('availability_templates', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+            });
+        }
     }
-
     /**
      * Reverse the migrations.
      *
