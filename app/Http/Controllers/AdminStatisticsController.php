@@ -116,4 +116,39 @@ class AdminStatisticsController extends Controller
             'topServices'
         ));
     }
+
+    public function export(Request $request)
+    {
+        $period = $request->input('period', 30);
+        $startDate = \Carbon\Carbon::now()->subDays($period);
+
+        $topServices = \App\Models\Service::withCount(['reservations' => function($query) use ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }])
+        ->with('provider')
+        ->orderByDesc('reservations_count')
+        ->take(5)
+        ->get()
+        ->map(function($service) {
+            $revenue = $service->reservations()
+                ->where('payment_status', 'completed')
+                ->sum('amount');
+            return [
+                'name' => $service->name,
+                'provider' => $service->provider->name,
+                'reservations' => $service->reservations_count,
+                'revenue' => $revenue
+            ];
+        });
+
+        $csv = "Service,Prestataire,Reservations,Revenus\n";
+        foreach ($topServices as $service) {
+            $csv .= "{$service['name']},{$service['provider']},{$service['reservations']},{$service['revenue']}\n";
+        }
+
+        $filename = "statistiques_{$period}jours.csv";
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+    }
 }
