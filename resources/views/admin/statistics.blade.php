@@ -318,9 +318,15 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ min(($service['reservations'] / max(array_column($topServices->toArray(), 'reservations'))) * 100, 100) }}%"></div>
+                                                @php
+                                                    $maxReservations = max(array_column($topServices->toArray(), 'reservations'));
+                                                    $percent = $maxReservations > 0 ? min(($service['reservations'] / $maxReservations) * 100, 100) : 0;
+                                                @endphp
+                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $percent }}%"></div>
                                             </div>
-                                            <span class="ml-2 text-sm text-gray-500">{{ round(($service['reservations'] / max(array_column($topServices->toArray(), 'reservations'))) * 100) }}%</span>
+                                            <span class="ml-2 text-sm text-gray-500">
+                                                {{ $maxReservations > 0 ? round(($service['reservations'] / $maxReservations) * 100) : 0 }}%
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>
