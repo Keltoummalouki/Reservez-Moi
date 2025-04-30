@@ -599,7 +599,7 @@
                 @elseif(isset($service))
                     availabilityMenuItem.href = "{{ route('provider.availability.index', $service->id) }}";
                 @else
-                    availabilityMenuItem.href = "{{ route('provider.services') }}";
+                    availabilityMenuItem.href = "{{ route('provider.services.index') }}";
                 @endif
             }
         });

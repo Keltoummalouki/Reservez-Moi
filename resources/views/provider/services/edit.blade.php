@@ -8,6 +8,7 @@
     <title>Modifier un service - Reservez-Moi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -225,11 +226,11 @@
                             <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Catégorie <span class="text-red-500">*</span></label>
                             <select name="category_id" id="category_id" required class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Sélectionnez une catégorie</option>
-                                <option value="1" {{ old('category_id', $service->category_id) == 1 ? 'selected' : '' }}>Doctors & Hospitals</option>
-                                <option value="2" {{ old('category_id', $service->category_id) == 2 ? 'selected' : '' }}>Beauty Salon & Spas</option>
-                                <option value="3" {{ old('category_id', $service->category_id) == 3 ? 'selected' : '' }}>Services juridiques</option>
-                                <option value="4" {{ old('category_id', $service->category_id) == 4 ? 'selected' : '' }}>Hotel</option>
-                                <option value="5" {{ old('category_id', $service->category_id) == 5 ? 'selected' : '' }}>Restaurant</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id', $service->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -333,32 +334,76 @@
             // Image preview functionality
             const input = document.getElementById('photos');
             const preview = document.getElementById('preview');
+            // Pour stocker la div cible si remplacement
+            let replaceTarget = null;
             
             input.addEventListener('change', function() {
-                preview.innerHTML = ''; // Clear existing previews
-                
+                // Si on remplace une image supprimée, on affiche l'aperçu à la place
+                if (replaceTarget && this.files.length > 0) {
+                    let file = this.files[0];
+                    if (file.type !== 'image/png') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Format invalide',
+                            text: 'L\'image doit être au format PNG uniquement.',
+                        });
+                        input.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        replaceTarget.innerHTML = `
+                            <img src="${e.target.result}" alt="Aperçu" class="object-cover w-full h-48 rounded-lg">
+                            <div class=\"absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg\">
+                                <button type=\"button\" class=\"text-white p-2\" onclick=\"this.closest('.relative').remove();\">
+                                    <svg class=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">
+                                        <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    reader.readAsDataURL(file);
+                    replaceTarget = null;
+                    input.value = '';
+                    return;
+                }
+                // Sinon, comportement normal (ajout en bas)
+                preview.innerHTML = '';
+                let valid = true;
+                for (const file of this.files) {
+                    if (file && file.type !== 'image/png') {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Format invalide',
+                        text: 'L\'image doit être au format PNG uniquement.',
+                    });
+                    input.value = '';
+                    return;
+                }
                 for (const file of this.files) {
                     if (file) {
                         const reader = new FileReader();
-                        
                         reader.onload = function(e) {
                             const div = document.createElement('div');
                             div.className = 'relative aspect-w-1 aspect-h-1 group';
-                            
                             div.innerHTML = `
                                 <img src="${e.target.result}" alt="Aperçu" class="object-cover w-full h-48 rounded-lg">
-                                <div class="absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg">
-                                    <button type="button" class="text-white p-2" onclick="this.closest('.relative').remove();">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <div class=\"absolute inset-0 flex items-center justify-center opacity-0 bg-black bg-opacity-50 group-hover:opacity-100 transition-opacity rounded-lg\">
+                                    <button type=\"button\" class=\"text-white p-2\" onclick=\"this.closest('.relative').remove();\">
+                                        <svg class=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">
+                                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />
                                         </svg>
                                     </button>
                                 </div>
                             `;
-                            
                             preview.appendChild(div);
                         }
-                        
                         reader.readAsDataURL(file);
                     }
                 }
@@ -380,7 +425,17 @@
 
         // Photo management functions
         function deletePhoto(photoId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
+            Swal.fire({
+                title: 'Êtes-vous sûr de vouloir supprimer cette photo ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Oui, supprimer',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
                 fetch(`/provider/service-photos/${photoId}`, {
                     method: 'DELETE',
                     headers: {
@@ -391,16 +446,23 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById(`photo-${photoId}`).remove();
+                            const photoDiv = document.getElementById(`photo-${photoId}`);
+                            if (photoDiv) {
+                                // Préparer à remplacer l'image supprimée
+                                replaceTarget = photoDiv;
+                                photoDiv.innerHTML = `<div class='flex flex-col items-center justify-center h-full'><span class='text-gray-400'>Image supprimée.<br>Ajouter une nouvelle image ici.</span><label for='photos' class='cursor-pointer text-primary-600 underline mt-2'>Remplacer</label></div>`;
+                            }
+                            Swal.fire('Supprimé !', 'La photo a été supprimée. Vous pouvez en ajouter une nouvelle.', 'success');
                     } else {
-                        alert('Erreur lors de la suppression de la photo');
+                            Swal.fire('Erreur', 'Erreur lors de la suppression de la photo', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Erreur lors de la suppression de la photo');
+                        Swal.fire('Erreur', 'Erreur lors de la suppression de la photo', 'error');
                 });
             }
+            });
         }
 
         function setPrimaryPhoto(photoId) {

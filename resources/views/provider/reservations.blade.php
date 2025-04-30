@@ -111,21 +111,25 @@
             </div>
             
             <nav class="space-y-1">
-                <a href="{{ route('provider.dashboard') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.dashboard') }}" class="sidebar-item {{ request()->routeIs('provider.dashboard') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
-                <a href="{{ route('provider.reservations') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.reservations') }}" class="sidebar-item {{ request()->routeIs('provider.reservations*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="{{ isset($services) && count($services) > 0 ? route('provider.availability.index', $services->first()->id) : route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-clock text-primary-300 w-5"></i>
-                    <span>Disponibilités</span>
+                <a href="{{ route('provider.statistics') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-chart-bar text-primary-300 w-5"></i>
+                    <span>Statistiques</span>
+                </a>
+                <a href="{{ route('provider.settings') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-cog text-primary-300 w-5"></i>
+                    <span>Paramètres</span>
                 </a>
                 
                 <div class="pt-5 mt-5 border-t border-primary-700">

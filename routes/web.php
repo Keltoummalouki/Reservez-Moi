@@ -26,9 +26,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
 use App\Models\ServiceProvider;
 use App\Models\Category;
-use App\Http\Controllers\Provider\StatisticsController;
-use App\Http\Controllers\Provider\ProfileController as ProviderProfileController;
-use App\Http\Controllers\Provider\SettingsController as ProviderSettingsController;
+use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\ProfileController as ProviderProfileController;
+use App\Http\Controllers\SettingsController as ProviderSettingsController;
+use App\Http\Controllers\Provider\ServiceController as ProviderServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -234,12 +235,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('providers.destroy');
     
     // Routes pour les services
-    Route::get('/services', [AdminServicesController::class, 'index'])->name('services');
-    Route::get('/services/create', [AdminServicesController::class, 'create'])->name('services.create');
-    Route::post('/services', [AdminServicesController::class, 'store'])->name('services.store');
-    Route::get('/services/{service}/edit', [AdminServicesController::class, 'edit'])->name('services.edit');
-    Route::put('/services/{service}', [AdminServicesController::class, 'update'])->name('services.update');
-    Route::delete('/services/{service}', [AdminServicesController::class, 'destroy'])->name('services.destroy');
+    Route::get('/services', [ServiceController::class, 'index'])->name('services');
     
     // Routes pour les propriétaires
     Route::get('/proprietaires', [AdminProprietaireController::class, 'index'])->name('proprietaires.index');
@@ -280,3 +276,14 @@ Route::middleware(['auth'])->prefix('paypal')->name('paypal.')->group(function (
 });
 
 Route::redirect('/admin/service-providers', '/admin/providers');
+
+Route::delete('/provider/service-photos/{photo}', [App\Http\Controllers\ProviderServicePhotoController::class, 'destroy'])->name('provider.service-photos.destroy');
+
+Route::prefix('provider')->name('provider.')->middleware(['auth', 'role:provider'])->group(function () {
+    Route::resource('services', ProviderServiceController::class);
+});
+
+Route::middleware(['auth', 'role:Admin,ServiceProvider'])->prefix('services')->name('services.')->group(function () {
+    Route::get('/', [ServiceController::class, 'index'])->name('index');
+    // ... autres routes
+});
