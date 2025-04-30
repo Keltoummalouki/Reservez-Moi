@@ -21,8 +21,15 @@ class ServiceController extends Controller
 
     public function index()
     {
-        $services = $this->serviceRepository->all();
-        return view('provider.services.services', compact('services'));
+        if (auth()->user()->hasRole('Admin')) {
+            $services = Service::all();
+        } else if (auth()->user()->hasRole('ServiceProvider')) {
+            $services = Service::where('provider_id', auth()->id())->get();
+        } else {
+            abort(403, 'Vous n\'avez pas les droits nécessaires.');
+        }
+
+        return view('services.index', compact('services'));
     }
 
     public function create()
@@ -101,10 +108,11 @@ class ServiceController extends Controller
             ->with('success', 'Service mis à jour avec succès.');
     }
 
-    public function destroy(Service $service)
+    public function destroy($id)
     {
+        $service = Service::where('id', $id)->where('provider_id', auth()->id())->firstOrFail();
         $service->delete();
 
-        return redirect()->route('provider.services.index')->with('success', 'Service supprimé avec succès !');
+        return redirect()->route('provider.services.index')->with('success', 'Service supprimé avec succès.');
     }
 }

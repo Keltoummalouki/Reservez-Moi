@@ -74,7 +74,7 @@ class RegisterController extends Controller
             case 'ServiceProvider':
                 return redirect()->route('provider.dashboard');
             case 'Client':
-                return redirect()->route('client.services');
+        return redirect()->route('client.services');
             default:
                 \Auth::logout();
                 return redirect('/login')->withErrors('Erreur : rôle utilisateur inconnu.');
