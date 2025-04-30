@@ -134,10 +134,6 @@ class AdminServiceProviderController extends Controller
 
     public function destroy(User $user)
     {
-        if (!$user->roles->contains('name', 'ServiceProvider')) {
-            abort(403, 'Unauthorized: This user is not a ServiceProvider.');
-        }
-
         // Supprimer les services associés
         $user->services()->delete();
         
