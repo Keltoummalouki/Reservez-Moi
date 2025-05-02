@@ -110,7 +110,7 @@
                     <i class="fas fa-building text-blue-300 w-5"></i>
                     <span>Prestataires</span>
                 </a>
-                <a href="{{ route('admin.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
+                <a href="{{ route('services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
                     <i class="fas fa-clipboard-list text-blue-300 w-5"></i>
                     <span>Services</span>
                 </a>

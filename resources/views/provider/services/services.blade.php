@@ -121,6 +121,10 @@
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
+                <a href="{{ route('provider.statistics') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-chart-bar text-primary-300 w-5"></i>
+                    <span>Statistiques</span>
+                </a>
                 <a href="#" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-cog text-primary-300 w-5"></i>
                     <span>Paramètres</span>

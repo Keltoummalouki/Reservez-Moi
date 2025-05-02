@@ -112,7 +112,7 @@
                     <i class="fas fa-building text-blue-300 w-5"></i>
                     <span>Prestataires</span>
                 </a>
-                <a href="{{ route('admin.services') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
+                <a href="{{ route('services.index') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
                     <i class="fas fa-clipboard-list text-blue-300 w-5"></i>
                     <span>Services</span>
                 </a>
@@ -291,7 +291,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
+                                            <form action="{{ route('services.index.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="button" class="text-red-600 hover:text-red-900 delete-service-btn" title="Supprimer">
@@ -306,7 +306,7 @@
                                     <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                         <div class="py-6">
                                             <p class="text-gray-500 mb-2">Aucun service trouvé</p>
-                                            <a href="{{ route('admin.services.create') }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
+                                            <a href="{{ route('services.index.create') }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
                                                 <i class="fas fa-plus mr-1"></i> Ajouter un service
                                             </a>
                                         </div>

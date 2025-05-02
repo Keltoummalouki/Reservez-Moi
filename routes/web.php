@@ -29,7 +29,8 @@ use App\Models\Category;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\ProfileController as ProviderProfileController;
 use App\Http\Controllers\SettingsController as ProviderSettingsController;
-use App\Http\Controllers\Provider\ServiceController as ProviderServiceController;
+use App\Http\Controllers\ServiceController as AdminServiceController;
+use App\Http\Controllers\ProviderSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -219,6 +220,10 @@ Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provide
 
     Route::put('/provider/availability/{serviceId}/update-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'updateWeekly'])
     ->name('provider.availability.update-weekly');
+
+    // Paramètres du compte service provider
+    Route::get('/settings', [ProviderSettingController::class, 'index'])->name('settings');
+    Route::put('/settings', [ProviderSettingController::class, 'update'])->name('settings.update');
 });
 
 // Routes pour les administrateurs
@@ -265,6 +270,10 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/service-providers/{provider}/edit', [AdminServiceProviderController::class, 'edit'])->name('service_providers.edit');
     Route::put('/service-providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
     Route::delete('/service-providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
+
+    Route::resource('services', Admin\ServiceController::class);
+
+    Route::post('admin/services/{service}/suspend', [ServiceController::class, 'suspend'])->name('admin.services.suspend');
 });
 
 // Routes pour le système de paiement PayPal
@@ -279,11 +288,11 @@ Route::redirect('/admin/service-providers', '/admin/providers');
 
 Route::delete('/provider/service-photos/{photo}', [App\Http\Controllers\ProviderServicePhotoController::class, 'destroy'])->name('provider.service-photos.destroy');
 
-Route::prefix('provider')->name('provider.')->middleware(['auth', 'role:provider'])->group(function () {
-    Route::resource('services', ProviderServiceController::class);
+Route::middleware(['auth', 'role:ServiceProvider'])->prefix('provider')->name('provider.')->group(function () {
+    Route::resource('services', ServiceController::class);
 });
 
 Route::middleware(['auth', 'role:Admin,ServiceProvider'])->prefix('services')->name('services.')->group(function () {
     Route::get('/', [ServiceController::class, 'index'])->name('index');
-    // ... autres routes
+
 });

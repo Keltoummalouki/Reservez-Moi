@@ -124,23 +124,23 @@
             </div>
             
             <nav class="space-y-1">
-                <a href="{{ route('provider.dashboard') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.dashboard') }}" class="sidebar-item {{ request()->routeIs('provider.dashboard') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-list-alt text-primary-300 w-5"></i>
                     <span>Mes services</span>
                 </a>
-                <a href="{{ (isset($services) && count($services) > 0) ? route('provider.availability.index', $services->first()->id) : route('provider.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-clock text-primary-300 w-5"></i>
-                    <span>Disponibilités</span>
-                </a>
-                <a href="{{ route('provider.reservations') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.reservations') }}" class="sidebar-item {{ request()->routeIs('provider.reservations*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
                     <span>Réservations</span>
                 </a>
-                <a href="{{ route('provider.settings') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('provider.statistics') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-chart-bar text-primary-300 w-5"></i>
+                    <span>Statistiques</span>
+                </a>
+                <a href="{{ route('provider.settings') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-cog text-primary-300 w-5"></i>
                     <span>Paramètres</span>
                 </a>
@@ -185,8 +185,51 @@
         </div>
         
         <!-- Settings Content -->
-        <!-- (The rest of the provider settings page content goes here, as in the previous provider settings blade) -->
-        @include('provider.settings-content')
+        <div class="max-w-xl mx-auto py-12">
+            <h1 class="text-2xl font-bold mb-6 text-center">Paramètres du compte</h1>
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
+            @endif
+            @if($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    <ul class="list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('provider.settings.update') }}">
+                @csrf
+                @method('PUT')
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1" for="name">Nom</label>
+                    <input class="w-full border rounded p-2" type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1" for="email">Email</label>
+                    <input class="w-full border rounded p-2" type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1" for="phone">Téléphone</label>
+                    <input class="w-full border rounded p-2" type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}">
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1" for="address">Adresse</label>
+                    <input class="w-full border rounded p-2" type="text" name="address" id="address" value="{{ old('address', $user->address) }}">
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1" for="password">Nouveau mot de passe</label>
+                    <input class="w-full border rounded p-2" type="password" name="password" id="password" autocomplete="new-password">
+                    <small class="text-gray-500">Laisser vide pour ne pas changer</small>
+                </div>
+                <div class="mb-6">
+                    <label class="block font-semibold mb-1" for="password_confirmation">Confirmer le mot de passe</label>
+                    <input class="w-full border rounded p-2" type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition">Enregistrer</button>
+            </form>
+        </div>
     </main>
     
     <!-- Scripts -->

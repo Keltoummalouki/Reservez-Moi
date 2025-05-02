@@ -88,52 +88,61 @@
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden overlay"></div>
     
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed top-0 left-0 z-30 h-full w-64 bg-blue-800 text-white overflow-y-auto transition-transform">
-        <div class="p-5 border-b border-blue-700">
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 z-30 h-full w-64 bg-primary-800 text-white overflow-y-auto transition-transform">
+        <div class="p-5 border-b border-primary-700">
             <div class="flex items-center space-x-3">
-                <div class="bg-white rounded-full h-10 w-10 flex items-center justify-center">
-                    <i class="fas fa-user text-blue-600 text-xl"></i>
+                <div class="bg-white rounded-full p-2">
+                    <i class="fas fa-calendar-check text-primary-600 text-xl"></i>
                 </div>
-                <div>
-                    <div class="text-lg font-bold">{{ Auth::user()->name }}</div>
-                    <p class="text-xs text-blue-200">Administrateur</p>
-                </div>
+                <span class="text-lg font-bold">Reservez-Moi</span>
             </div>
+            <p class="text-xs text-primary-200 mt-1">Espace prestataire</p>
         </div>
         
         <div class="p-5">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="bg-primary-700 rounded-full h-10 w-10 flex items-center justify-center">
+                    <i class="fas fa-user text-lg"></i>
+                </div>
+                <div>
+                    <p class="font-medium">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-primary-200">Prestataire</p>
+                </div>
+            </div>
+            
             <nav class="space-y-1">
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-tachometer-alt text-blue-300 w-5"></i>
+                <a href="{{ route('provider.dashboard') }}" class="sidebar-item {{ request()->routeIs('provider.dashboard') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-tachometer-alt text-primary-300 w-5"></i>
                     <span>Tableau de bord</span>
                 </a>
-                <a href="{{ route('admin.service_providers') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-building text-blue-300 w-5"></i>
-                    <span>Prestataires</span>
+                <a href="{{ route('provider.services.index') }}" class="sidebar-item {{ request()->routeIs('provider.services*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-list-alt text-primary-300 w-5"></i>
+                    <span>Mes services</span>
                 </a>
-                <a href="{{ route('provider.services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-clipboard-list text-blue-300 w-5"></i>
-                    <span>Services</span>
+                <a href="{{ route('provider.reservations') }}" class="sidebar-item {{ request()->routeIs('provider.reservations*') ? 'active' : '' }} flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-calendar-alt text-primary-300 w-5"></i>
+                    <span>Réservations</span>
                 </a>
-                <a href="{{ route('admin.statistics') }}" class="sidebar-item active flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-chart-bar text-blue-300 w-5"></i>
+                <a href="{{ route('provider.statistics') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-chart-bar text-primary-300 w-5"></i>
                     <span>Statistiques</span>
                 </a>
-                <a href="{{ route('admin.settings') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-cog text-blue-300 w-5"></i>
+                <a href="{{ route('provider.settings') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-cog text-primary-300 w-5"></i>
                     <span>Paramètres</span>
                 </a>
                 
-                <div class="pt-5 mt-5 border-t border-blue-700">
+                <div class="pt-5 mt-5 border-t border-primary-700">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="flex w-full items-center space-x-3 p-3 rounded-md hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-sign-out-alt text-blue-300 w-5"></i>
+                        <button type="submit" class="flex w-full items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-sign-out-alt text-primary-300 w-5"></i>
                             <span>Déconnexion</span>
                         </button>
                     </form>
                 </div>
             </nav>
+            
         </div>
     </aside>
     
@@ -178,8 +187,8 @@
                             </button>
                         </form>
                     </div>
-                </div>
-            </div>
+                            </div>
+                                        </div>
             
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -188,7 +197,7 @@
                         <div>
                             <p class="text-sm font-medium text-gray-500">Total Réservations</p>
                             <h3 id="total-reservations" class="text-2xl font-bold text-gray-800 mt-1">{{ $totalReservations ?? 0 }}</h3>
-                        </div>
+                            </div>
                         <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                             <i class="fas fa-calendar-check"></i>
                         </div>
@@ -206,7 +215,7 @@
                         <div>
                             <p class="text-sm font-medium text-gray-500">Revenus</p>
                             <h3 id="total-revenue" class="text-2xl font-bold text-gray-800 mt-1">{{ $totalRevenue ?? '0' }} €</h3>
-                        </div>
+                            </div>
                         <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                             <i class="fas fa-euro-sign"></i>
                         </div>
@@ -224,7 +233,7 @@
                         <div>
                             <p class="text-sm font-medium text-gray-500">Nouveaux Clients</p>
                             <h3 id="new-clients" class="text-2xl font-bold text-gray-800 mt-1">{{ $newClients ?? 0 }}</h3>
-                        </div>
+                            </div>
                         <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
                             <i class="fas fa-user-plus"></i>
                         </div>
@@ -242,7 +251,7 @@
                         <div>
                             <p class="text-sm font-medium text-gray-500">Taux de conversion</p>
                             <h3 id="conversion-rate" class="text-2xl font-bold text-gray-800 mt-1">{{ $conversionRate ?? '0' }}%</h3>
-                        </div>
+                            </div>
                         <div class="h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
                             <i class="fas fa-percentage"></i>
                         </div>
@@ -279,7 +288,7 @@
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-medium text-gray-900">Services les plus réservés</h2>
-                </div>
+                    </div>
                 
                 <div class="bg-white rounded-lg shadow overflow-hidden">
                     <div class="overflow-x-auto">
@@ -299,7 +308,7 @@
                                 @forelse($topServices as $service)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
+                                    <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
                                                 <i class="fas fa-clipboard-list"></i>
                                             </div>
@@ -358,12 +367,12 @@
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                             <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $category['percentage'] }}%"></div>
-                        </div>
+                                    </div>
                         <div class="text-right text-sm text-gray-500">
                             {{ $category['percentage'] }}% des réservations
-                        </div>
-                    </div>
-                    @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
                 </div>
             </div>
             
@@ -429,9 +438,9 @@
             // Reservations Chart
             const reservationsCtx = document.getElementById('reservationsChart');
             if (reservationsCtx) {
-                new Chart(reservationsCtx, {
-                    type: 'line',
-                    data: {
+            new Chart(reservationsCtx, {
+                type: 'line',
+                data: {
                         labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
                         datasets: [
                             {
@@ -499,7 +508,7 @@
                                 '{{ $category['name'] }}',
                             @endforeach
                         ],
-                        datasets: [{
+                    datasets: [{
                             data: [
                                 @foreach($popularCategories ?? [] as $category)
                                     {{ $category['percentage'] }},
@@ -513,13 +522,13 @@
                                 'rgba(139, 92, 246, 0.8)'
                             ],
                             borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
                                 position: 'bottom',
                             }
                         }
@@ -531,10 +540,10 @@
             const funnelCtx = document.getElementById('funnelChart');
             if (funnelCtx) {
                 new Chart(funnelCtx, {
-                    type: 'bar',
-                    data: {
+                type: 'bar',
+                data: {
                         labels: ['Visites', 'Recherches', 'Vues de services', 'Tentatives de réservation', 'Réservations complétées'],
-                        datasets: [{
+                    datasets: [{
                             label: 'Nombre d\'utilisateurs',
                             data: [1000, 750, 500, 300, 200],
                             backgroundColor: [
@@ -552,18 +561,18 @@
                                 'rgb(59, 130, 246)'
                             ],
                             borderWidth: 1
-                        }]
-                    },
-                    options: {
+                    }]
+                },
+                options: {
                         indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
                             x: {
                                 beginAtZero: true
                             }
@@ -608,4 +617,4 @@
         });
     </script>
 </body>
-</html>
+</html> 

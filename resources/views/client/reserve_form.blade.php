@@ -110,19 +110,59 @@
         }
         
         .time-slot {
-            @apply cursor-pointer border border-gray-300 rounded-md px-4 py-3 transition-all duration-300 text-center;
+            cursor: pointer;
+            border: 2px solid #e5e7eb; /* gray-300 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1rem 0;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 500;
+            background: #fff;
+            box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+            transition: all 0.2s;
+            text-align: center;
+            user-select: none;
         }
-        
         .time-slot:hover {
-            @apply border-primary-300 bg-primary-50;
+            border-color: #2563eb; /* primary-600 */
+            background: #eff6ff; /* primary-50 */
+            color: #2563eb;
+            box-shadow: 0 2px 8px 0 rgba(37,99,235,0.08);
         }
-        
         .time-slot.selected {
-            @apply border-primary-600 bg-primary-50 font-medium ring-2 ring-primary-600 ring-opacity-50;
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 4px 16px 0 rgba(37,99,235,0.12);
+            transform: scale(1.04);
+        }
+        @media (max-width: 640px) {
+            .time-slot {
+                font-size: 1rem;
+                padding: 0.75rem 0;
+            }
         }
         
         .time-slot.disabled {
             @apply cursor-not-allowed bg-gray-100 text-gray-400;
+        }
+        
+        #custom-time-menu {
+            min-width: 180px;
+        }
+        .custom-time-option {
+            background: #fff;
+            color: #222;
+            border: 2px solid transparent;
+        }
+        .custom-time-option.selected,
+        .custom-time-option:focus,
+        .custom-time-option:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+            outline: none;
         }
     </style>
 </head>
@@ -245,47 +285,28 @@
                             <!-- Reservation Form -->
                             <form id="reservation-form" class="space-y-6" action="{{ route('client.reserve', $service->id) }}" method="POST">
                                 @csrf
-                                <div>
-                                    <h3 class="text-lg font-semibold mb-4">1. Choisissez une date</h3>
-                                    
-                                    @if (count($availableDates) > 0)
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
-                                            @foreach ($availableDates as $date)
-                                                <div class="date-slot" data-date="{{ $date['date'] }}">
-                                                    <div class="font-medium">{{ $date['day_name'] }}</div>
-                                                    <div class="text-lg">{{ $date['formatted'] }}</div>
-                                                    <div class="text-xs text-gray-500 mt-1">{{ $date['slots_count'] }} créneau(x) disponible(s)</div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <div class="bg-yellow-50 text-yellow-800 p-4 rounded-lg mb-4">
-                                            <p class="font-medium">Aucune disponibilité pour les 30 prochains jours.</p>
-                                            <p class="text-sm mt-2">Veuillez réessayer ultérieurement ou contacter le prestataire.</p>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <div id="time-slots-container" class="hidden">
-                                    <h3 class="text-lg font-semibold mb-4">2. Choisissez un horaire</h3>
-                                    <div id="time-slots" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
-                                        <!-- Les créneaux horaires seront chargés dynamiquement -->
+                                <div class="flex flex-col sm:flex-row sm:items-end sm:space-x-4">
+                                    <div class="flex-1">
+                                        <label for="date-picker" class="block text-sm font-semibold mb-1">1. Choisissez une date</label>
+                                        <input type="date" id="date-picker" class="border rounded p-2 w-full" min="{{ now()->toDateString() }}">
                                     </div>
-                                </div>
-
-                                <div id="notes-container" class="hidden">
-                                    <h3 class="text-lg font-semibold mb-4">3. Informations complémentaires</h3>
-                                    <div>
-                                        <label for="notes" class="block text-sm font-medium text-gray-700">Notes ou instructions spéciales (facultatif)</label>
-                                        <div class="mt-1">
-                                            <textarea 
-                                                id="notes" 
-                                                name="notes" 
-                                                rows="3" 
-                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm text-gray-900 transition-all duration-300" 
-                                                placeholder="Ajoutez des notes ou demandes spéciales pour votre réservation..."
-                                            >{{ old('notes') }}</textarea>
+                                    <div class="flex-1 mt-4 sm:mt-0">
+                                        <label class="block text-sm font-semibold mb-1">2. Choisissez un horaire</label>
+                                        <button type="button" id="custom-time-btn" class="border rounded p-2 w-full text-left bg-white">--:--</button>
+                                        <div id="custom-time-menu" class="hidden absolute z-50 bg-white border rounded shadow-lg mt-2 w-48">
+                                            <div class="grid grid-cols-2 gap-2 p-2 max-h-64 overflow-y-auto">
+                                                @php
+                                                    $start = \Carbon\Carbon::createFromTime(8, 0);
+                                                    $end = \Carbon\Carbon::createFromTime(0, 0)->addDay();
+                                                @endphp
+                                                @for ($time = $start->copy(); $time <= $end; $time->addMinutes(30))
+                                                    <button type="button" class="custom-time-option rounded text-lg font-semibold py-2 transition" data-value="{{ $time->format('H:i') }}">
+                                                        {{ $time->format('H:i') }}
+                                                    </button>
+                                                @endfor
+                                            </div>
                                         </div>
+                                        <input type="hidden" name="reservation_time" id="reservation_time">
                                     </div>
                                 </div>
 
@@ -312,6 +333,9 @@
                 </div>
             </div>
         </section>
+
+        <div id="calendar"></div>
+        <div id="time-slots-container"></div>
     </main>
 
     <!-- Footer -->
@@ -414,100 +438,42 @@
             });
             
             // Date and time selection
-            const dateSlots = document.querySelectorAll('.date-slot');
-            const timeSlotContainer = document.getElementById('time-slots-container');
-            const timeSlots = document.getElementById('time-slots');
-            const notesContainer = document.getElementById('notes-container');
-            const submitContainer = document.getElementById('submit-container');
+            const datePicker = document.getElementById('date-picker');
+            const customTimeBtn = document.getElementById('custom-time-btn');
+            const customTimeMenu = document.getElementById('custom-time-menu');
+            const reservationTimeInput = document.getElementById('reservation_time');
             const reservationDateTimeInput = document.getElementById('reservation_datetime');
+            const submitContainer = document.getElementById('submit-container');
             const loadingIndicator = document.getElementById('loading-indicator');
             
-            // Handle date selection
-            dateSlots.forEach(slot => {
-                slot.addEventListener('click', function() {
-                    // Reset previous selection
-                    dateSlots.forEach(s => s.classList.remove('selected'));
+            datePicker.addEventListener('change', function() {
+                customTimeMenu.classList.add('hidden');
+                submitContainer.classList.add('hidden');
+            });
+            
+            customTimeBtn.addEventListener('click', function() {
+                customTimeMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('.custom-time-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.custom-time-option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
-                    
-                    // Show loading indicator
-                    loadingIndicator.classList.remove('hidden');
-                    
-                    // Fetch time slots for the selected date
-                    const date = this.getAttribute('data-date');
-                    fetch(`{{ route('client.timeslots', $service->id) }}?date=${date}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Hide loading indicator
-                        loadingIndicator.classList.add('hidden');
-                        
-                        // Clear previous time slots
-                        timeSlots.innerHTML = '';
-                        
-                        if (data.has_slots) {
-                            // Create time slot buttons
-                            data.slots.forEach(slot => {
-                                const timeSlot = document.createElement('div');
-                                timeSlot.className = 'time-slot';
-                                timeSlot.setAttribute('data-value', slot.value);
-                                timeSlot.textContent = slot.formatted;
-                                
-                                // Add information about available spots
-                                if (slot.available_spots > 0) {
-                                    const spotsInfo = document.createElement('div');
-                                    spotsInfo.className = 'text-xs text-gray-500 mt-1';
-                                    spotsInfo.textContent = slot.available_spots > 1 ? 
-                                        `${slot.available_spots} places disponibles` : 
-                                        '1 place disponible';
-                                    timeSlot.appendChild(spotsInfo);
-                                } else {
-                                    timeSlot.classList.add('disabled');
-                                    const spotsInfo = document.createElement('div');
-                                    spotsInfo.className = 'text-xs text-gray-500 mt-1';
-                                    spotsInfo.textContent = 'Complet';
-                                    timeSlot.appendChild(spotsInfo);
-                                }
-                                
-                                // Handle time slot selection
-                                if (slot.available_spots > 0) {
-                                    timeSlot.addEventListener('click', function() {
-                                        // Reset previous selection
-                                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                                        this.classList.add('selected');
-                                        
-                                        // Set the reservation datetime value
-                                        reservationDateTimeInput.value = this.getAttribute('data-value');
-                                        
-                                        // Show the notes section and submit button
-                                        notesContainer.classList.remove('hidden');
-                                        submitContainer.classList.remove('hidden');
-                                    });
-                                }
-                                
-                                timeSlots.appendChild(timeSlot);
-                            });
-                            
-                            // Show the time slots container
-                            timeSlotContainer.classList.remove('hidden');
-                        } else {
-                            // No slots available for this date
-                            timeSlots.innerHTML = '<div class="col-span-full text-center py-4 text-gray-500">Aucun créneau disponible pour cette date.</div>';
-                            timeSlotContainer.classList.remove('hidden');
-                            notesContainer.classList.add('hidden');
-                            submitContainer.classList.add('hidden');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching time slots:', error);
-                        loadingIndicator.classList.add('hidden');
-                        timeSlots.innerHTML = '<div class="col-span-full text-center py-4 text-red-500">Une erreur est survenue lors du chargement des créneaux horaires.</div>';
-                        timeSlotContainer.classList.remove('hidden');
-                    });
+                    customTimeBtn.textContent = this.textContent;
+                    reservationTimeInput.value = this.getAttribute('data-value');
+                    customTimeMenu.classList.add('hidden');
+                    // Affiche le bouton de soumission si la date est choisie
+                    if (datePicker.value && reservationTimeInput.value) {
+                        submitContainer.classList.remove('hidden');
+                    }
                 });
+            });
+            
+            // Fermer le menu si on clique ailleurs
+            document.addEventListener('click', function(e) {
+                if (!customTimeBtn.contains(e.target) && !customTimeMenu.contains(e.target)) {
+                    customTimeMenu.classList.add('hidden');
+                }
             });
             
             // Preselect date and time if passed in URL
@@ -535,6 +501,21 @@
                     }
                 }
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                dateClick: function(info) {
+                    // Génère les créneaux horaires X:00 et X:30 pour la date sélectionnée
+                    const slots = generateTimeSlots(info.dateStr);
+                    // Affiche les créneaux dans une modal ou une section dédiée
+                    displayTimeSlots(slots, info.dateStr);
+                },
+                events: '/api/indisponibilites?service_id=XX', // Récupère les indisponibilités pour griser les jours
+            });
+            calendar.render();
         });
     </script>
 </body>
