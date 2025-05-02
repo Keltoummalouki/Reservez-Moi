@@ -165,7 +165,7 @@
                     <i class="fas fa-building text-primary-300 w-5"></i>
                     <span>Prestataires</span>
                 </a>
-                <a href="{{ route('admin.services') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
+                <a href="{{ route('services.index') }}" class="sidebar-item flex items-center space-x-3 p-3 rounded-md hover:bg-primary-700 transition-colors">
                     <i class="fas fa-clipboard-list text-primary-300 w-5"></i>
                     <span>Services</span>
                 </a>
@@ -674,7 +674,7 @@
                         <p class="text-sm text-gray-500">Consulter et gérer les prestataire</p>
                     </a>
                     
-                    <a href="{{ route('admin.services') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group">
+                    <a href="{{ route('services.index') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-all duration-300 flex flex-col items-center text-center group">
                         <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-200 transition-colors">
                             <i class="fas fa-clipboard-list text-xl"></i>
                         </div>
