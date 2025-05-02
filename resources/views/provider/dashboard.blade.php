@@ -268,7 +268,6 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservations</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disponibilités</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -308,19 +307,10 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $service->reservations_count ?? 0 }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $service->availabilities_count ?? 0 }}
-                                        <a href="{{ route('provider.availability.index', $service->id) }}" class="ml-2 text-xs text-primary-600 hover:text-primary-800">
-                                            <i class="fas fa-calendar"></i> Gérer
-                                        </a>
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
                                             <a href="{{ route('provider.services.edit', $service->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="{{ route('provider.availability.index', $service->id) }}" class="text-blue-600 hover:text-blue-900" title="Disponibilités">
-                                                <i class="fas fa-clock"></i>
                                             </a>
                                             <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
                                                 @csrf
@@ -459,106 +449,6 @@
                                         <div class="py-6">
                                             <p class="text-gray-500">Aucune réservation récente</p>
                                         </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Disponibilités récentes -->
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-gray-800">Prochaines disponibilités</h2>
-                    @if(count($services ?? []) > 0)
-                        <a href="{{ route('provider.availability.index', $services->first()->id) }}" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
-                            Gérer les disponibilités <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    @endif
-                </div>
-                
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Jour</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horaires</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservations</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($upcomingAvailabilities ?? [] as $availability)
-                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
-                                                <i class="fas fa-clipboard-list"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">{{ $availability->service->name ?? 'Service inconnu' }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        @if($availability->specific_date)
-                                            {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)))->format('d/m/Y') }}
-                                        @else
-                                            @switch($availability->day_of_week)
-                                                @case(0) Dimanche @break
-                                                @case(1) Lundi @break
-                                                @case(2) Mardi @break
-                                                @case(3) Mercredi @break
-                                                @case(4) Jeudi @break
-                                                @case(5) Vendredi @break
-                                                @case(6) Samedi @break
-                                            @endswitch
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)) . ' ' . date('H:i:s', strtotime($availability->start_time)))->format('H:i') }} - {{ \Carbon\Carbon::parse(date('Y-m-d', strtotime($availability->specific_date)) . ' ' . date('H:i:s', strtotime($availability->end_time)))->format('H:i') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if($availability->is_available)
-                                            <span class="text-gray-900">{{ $availability->reservations_count ?? 0 }} / {{ $availability->max_reservations }}</span>
-                                        @else
-                                            <span class="text-red-600">Indisponible</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($availability->specific_date)
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                Spécifique
-                                            </span>
-                                        @else
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Récurrent
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('provider.availability.index', $availability->service_id) }}" class="text-indigo-600 hover:text-indigo-900" title="Voir toutes">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                        <div class="py-6">
-                                            <p class="text-gray-500">Aucune disponibilité configurée</p>
-                                            @if(count($services ?? []) > 0)
-                                                <a href="{{ route('provider.availability.index', $services->first()->id) }}" class="mt-2 inline-block text-primary-600 hover:text-primary-800">
-                                                    Ajouter une disponibilité
-                                                </a>
-                                            @endif
-                                        </div>                         
                                     </td>
                                 </tr>
                                 @endforelse
