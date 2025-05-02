@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -321,7 +322,7 @@
                                             <a href="{{ route('provider.availability.index', $service->id) }}" class="text-blue-600 hover:text-blue-900" title="Disponibilités">
                                                 <i class="fas fa-clock"></i>
                                             </a>
-                                            <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">
+                                            <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
@@ -427,17 +428,17 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
                                             @if($reservation->status == 'pending')
-                                                <form action="{{ route('provider.reservations.confirm', $reservation->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('provider.reservations.confirm', $reservation->id) }}" method="POST" class="inline confirm-reservation-form">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer" onclick="return confirm('Êtes-vous sûr de vouloir confirmer cette réservation?');">
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Confirmer">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
                                             @endif
                                             
                                             @if($reservation->status == 'pending' || $reservation->status == 'confirmed')
-                                                <form action="{{ route('provider.reservations.cancel', $reservation->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                                <form action="{{ route('provider.reservations.cancel', $reservation->id) }}" method="POST" class="inline cancel-reservation-form">
                                                     @csrf
                                                     @method('PATCH')
                                                     <button type="submit" class="text-red-600 hover:text-red-900" title="Annuler">
@@ -717,7 +718,7 @@
                                                     Confirmer
                                                 </button>
                                             </form>
-                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline cancel-reservation-form">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
@@ -728,7 +729,7 @@
                                         ` : ''}
                                         ${reservation.status === 'confirmed' ? `
                                         <div class="mt-6">
-                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                            <form action="/provider/reservations/${reservation.id}/cancel" method="POST" class="inline cancel-reservation-form">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
@@ -760,6 +761,68 @@
                     }
                 });
             }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // SweetAlert2 pour la confirmation de réservation
+            document.querySelectorAll('.confirm-reservation-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Confirmation',
+                        text: "Êtes-vous sûr de vouloir confirmer cette réservation ?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2563eb',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Oui, confirmer',
+                        cancelButtonText: 'Annuler'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+            // SweetAlert2 pour l'annulation de réservation
+            document.querySelectorAll('.cancel-reservation-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Confirmation',
+                        text: "Êtes-vous sûr de vouloir annuler cette réservation ?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Oui, annuler',
+                        cancelButtonText: 'Non'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+            // SweetAlert2 pour la suppression de service
+            document.querySelectorAll('.delete-service-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Confirmation',
+                        text: "Êtes-vous sûr de vouloir supprimer ce service ?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Oui, supprimer',
+                        cancelButtonText: 'Non'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
     </script>
 </body>

@@ -291,13 +291,21 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <form action="{{ route('services.index.destroy', $service->id) }}" method="POST" class="inline delete-service-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="text-red-600 hover:text-red-900 delete-service-btn" title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            @if($service->is_available)
+                                                <form action="{{ route('admin.services.suspend', $service->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-yellow-600 hover:text-yellow-900" title="Suspendre">
+                                                        <i class="fas fa-ban"></i> Suspendre
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.services.resume', $service->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Réactiver">
+                                                        <i class="fas fa-play"></i> Réactiver
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

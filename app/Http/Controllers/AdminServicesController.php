@@ -128,4 +128,20 @@ class AdminServicesController extends Controller
         
         return redirect()->route('admin.services')->with('success', 'Service supprimé avec succès !');
     }
+
+    // Suspendre un service (désactiver)
+    public function suspend(Service $service)
+    {
+        $service->is_available = false;
+        $service->save();
+        return redirect()->route('admin.services')->with('success', 'Service suspendu avec succès !');
+    }
+
+    // Reprendre un service (réactiver)
+    public function resume(Service $service)
+    {
+        $service->is_available = true;
+        $service->save();
+        return redirect()->route('admin.services')->with('success', 'Service réactivé avec succès !');
+    }
 }

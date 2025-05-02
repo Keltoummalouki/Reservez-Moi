@@ -70,4 +70,23 @@ class ProviderReservationController extends Controller
 
         return redirect()->route('provider.reservations')->with('success', 'Réservation annulée avec succès !');
     }
+
+    public function details($id)
+    {
+        $reservation = Reservation::with(['user', 'service.category'])
+            ->where('id', $id)
+            ->whereHas('service', function ($query) {
+                $query->where('provider_id', Auth::id());
+            })
+            ->first();
+
+        if (!$reservation) {
+            return response()->json(['success' => false, 'message' => 'Réservation introuvable.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'reservation' => $reservation
+        ]);
+    }
 }

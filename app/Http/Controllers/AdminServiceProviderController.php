@@ -142,4 +142,20 @@ class AdminServiceProviderController extends Controller
 
         return redirect()->route('admin.service_providers')->with('success', 'Prestataire supprimé avec succès !');
     }
+
+    // Suspendre un service provider
+    public function suspend(User $provider)
+    {
+        $provider->is_active = false;
+        $provider->save();
+        return redirect()->route('admin.service_providers')->with('success', 'Prestataire suspendu avec succès !');
+    }
+
+    // Réactiver un service provider
+    public function resume(User $provider)
+    {
+        $provider->is_active = true;
+        $provider->save();
+        return redirect()->route('admin.service_providers')->with('success', 'Prestataire réactivé avec succès !');
+    }
 }

@@ -23,11 +23,28 @@ class ServiceController extends Controller
     {
         $user = auth()->user();
         if ($user->hasRole('Admin')) {
-            $services = Service::paginate(10);
-            return view('admin.services', compact('services'));
+            $services = Service::with(['provider', 'reservations'])->get();
+            $totalServices = $services->count();
+            $activeServices = $services->where('is_available', true)->count();
+            $totalReservations = \DB::table('reservations')->count();
+            $totalRevenue = \DB::table('reservations')->where('payment_status', 'completed')->sum('amount');
+            $topServices = Service::withCount('reservations')
+                ->orderByDesc('reservations_count')
+                ->take(5)
+                ->get();
+            $categories = [];
+            return view('admin.services', compact(
+                'services',
+                'totalServices',
+                'activeServices',
+                'totalReservations',
+                'totalRevenue',
+                'topServices',
+                'categories'
+            ));
         } else if ($user->hasRole('ServiceProvider')) {
             $services = Service::where('provider_id', $user->id)->paginate(10);
-            return view('provider.services.services', compact('services'));
+        return view('provider.services.services', compact('services'));
         } else {
             abort(403, "Vous n'avez pas les droits nécessaires.");
         }

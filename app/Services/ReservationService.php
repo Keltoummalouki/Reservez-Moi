@@ -23,21 +23,14 @@ class ReservationService
     {
         $service = $this->serviceRepository->find($serviceId);
         
-        // Vérifier les disponibilités
-        $conflictingReservation = $this->reservationRepository->checkConflictingReservation(
-            $serviceId, 
-            $data['reservation_date']
-        );
+        // Utiliser la date actuelle si aucune date n'est fournie
+        $reservationDate = $data['reservation_date'] ?? now();
         
-        if ($conflictingReservation) {
-            throw new \Exception('Ce créneau est déjà réservé.');
-        }
-        
-        // Créer la réservation
+        // Créer la réservation sans vérifier les conflits
         $reservationData = [
             'user_id' => Auth::id(),
             'service_id' => $serviceId,
-            'reservation_date' => $data['reservation_date'],
+            'reservation_date' => $reservationDate,
             'status' => 'pending',
             'notes' => $data['notes'] ?? null,
             'amount' => $service->price,

@@ -205,11 +205,11 @@
                 <div class="mb-4">
                     <label class="block font-semibold mb-1" for="name">Nom</label>
                     <input class="w-full border rounded p-2" type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required>
-                </div>
+                        </div>
                 <div class="mb-4">
                     <label class="block font-semibold mb-1" for="email">Email</label>
                     <input class="w-full border rounded p-2" type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required>
-                </div>
+                    </div>
                 <div class="mb-4">
                     <label class="block font-semibold mb-1" for="phone">Téléphone</label>
                     <input class="w-full border rounded p-2" type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}">
@@ -217,12 +217,12 @@
                 <div class="mb-4">
                     <label class="block font-semibold mb-1" for="address">Adresse</label>
                     <input class="w-full border rounded p-2" type="text" name="address" id="address" value="{{ old('address', $user->address) }}">
-                </div>
-                <div class="mb-4">
+                                    </div>
+                                    <div class="mb-4">
                     <label class="block font-semibold mb-1" for="password">Nouveau mot de passe</label>
                     <input class="w-full border rounded p-2" type="password" name="password" id="password" autocomplete="new-password">
                     <small class="text-gray-500">Laisser vide pour ne pas changer</small>
-                </div>
+                                    </div>
                 <div class="mb-6">
                     <label class="block font-semibold mb-1" for="password_confirmation">Confirmer le mot de passe</label>
                     <input class="w-full border rounded p-2" type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password">

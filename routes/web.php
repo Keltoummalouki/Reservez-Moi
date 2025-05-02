@@ -206,6 +206,7 @@ Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provide
     Route::get('/reservations', [ProviderReservationController::class, 'index'])->name('reservations');
     Route::patch('/reservations/{reservation}/confirm', [ProviderReservationController::class, 'confirm'])->name('reservations.confirm');
     Route::patch('/reservations/{reservation}/cancel', [ProviderReservationController::class, 'cancel'])->name('reservations.cancel');
+    Route::get('/reservations/{reservation}/details', [ProviderReservationController::class, 'details']);
 
     // Disponibilités
     Route::get('/services/{service}/availability', [ProviderAvailabilityController::class, 'index'])->name('availability.index');
@@ -240,7 +241,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('providers.destroy');
     
     // Routes pour les services
-    Route::get('/services', [ServiceController::class, 'index'])->name('services');
+    Route::get('/services', [App\Http\Controllers\AdminServicesController::class, 'index'])->name('services');
     
     // Routes pour les propriétaires
     Route::get('/proprietaires', [AdminProprietaireController::class, 'index'])->name('proprietaires.index');
@@ -271,9 +272,11 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/service-providers/{provider}', [AdminServiceProviderController::class, 'update'])->name('service_providers.update');
     Route::delete('/service-providers/{provider}', [AdminServiceProviderController::class, 'destroy'])->name('service_providers.destroy');
 
-    Route::resource('services', Admin\ServiceController::class);
+    Route::post('/services/{service}/suspend', [App\Http\Controllers\AdminServicesController::class, 'suspend'])->name('services.suspend');
+    Route::post('/services/{service}/resume', [App\Http\Controllers\AdminServicesController::class, 'resume'])->name('services.resume');
 
-    Route::post('admin/services/{service}/suspend', [ServiceController::class, 'suspend'])->name('admin.services.suspend');
+    Route::post('/service-providers/{provider}/suspend', [App\Http\Controllers\AdminServiceProviderController::class, 'suspend'])->name('service_providers.suspend');
+    Route::post('/service-providers/{provider}/resume', [App\Http\Controllers\AdminServiceProviderController::class, 'resume'])->name('service_providers.resume');
 });
 
 // Routes pour le système de paiement PayPal
@@ -296,3 +299,11 @@ Route::middleware(['auth', 'role:Admin,ServiceProvider'])->prefix('services')->n
     Route::get('/', [ServiceController::class, 'index'])->name('index');
 
 });
+
+Route::get('/provider/suspended', function () {
+    return view('provider.suspended');
+})->name('provider.suspended');
+
+Route::get('/suspended', function () {
+    return view('auth.suspended');
+})->name('suspended');

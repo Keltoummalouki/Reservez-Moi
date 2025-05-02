@@ -108,14 +108,14 @@ class ReservationController extends Controller
     public function reserve(Request $request, $serviceId)
     {
         $request->validate([
-            'reservation_datetime' => 'required|date|after:now',
+            // 'reservation_datetime' => 'nullable|date',
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $datetime = $request->input('reservation_datetime');
-        if (!Availability::isAvailable($serviceId, $datetime)) {
-            return back()->with('error', 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.');
-        }
+        // $datetime = $request->input('reservation_datetime');
+        // if (!Availability::isAvailable($serviceId, $datetime)) {
+        //     return back()->with('error', 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.');
+        // }
 
         try {
             $reservation = $this->reservationService->makeReservation($serviceId, $request->all());

@@ -310,8 +310,6 @@
                                     </div>
                                 </div>
 
-                                <input type="hidden" name="reservation_datetime" id="reservation_datetime">
-
                                 <div id="submit-container" class="hidden pt-4">
                                     <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg ripple">
                                         Confirmer la Réservation
@@ -442,7 +440,6 @@
             const customTimeBtn = document.getElementById('custom-time-btn');
             const customTimeMenu = document.getElementById('custom-time-menu');
             const reservationTimeInput = document.getElementById('reservation_time');
-            const reservationDateTimeInput = document.getElementById('reservation_datetime');
             const submitContainer = document.getElementById('submit-container');
             const loadingIndicator = document.getElementById('loading-indicator');
             
@@ -516,6 +513,19 @@
                 events: '/api/indisponibilites?service_id=XX', // Récupère les indisponibilités pour griser les jours
             });
             calendar.render();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('date-picker');
+            const timeInput = document.getElementById('time-picker');
+            const reserveBtn = document.getElementById('reserve-btn');
+            function toggleReserveBtn() {
+                reserveBtn.disabled = !(dateInput.value && timeInput.value);
+            }
+            if (dateInput && timeInput && reserveBtn) {
+                dateInput.addEventListener('input', toggleReserveBtn);
+                timeInput.addEventListener('input', toggleReserveBtn);
+            }
         });
     </script>
 </body>

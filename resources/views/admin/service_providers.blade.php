@@ -278,19 +278,33 @@
                                         {{ $provider->created_at ? $provider->created_at->format('d/m/Y') : 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($provider->is_active)
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Actif
                                         </span>
+                                        @else
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-700">
+                                                Suspendu
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <form action="{{ route('admin.service_providers.destroy', $provider->id) }}" method="POST" class="inline">
+                                            @if($provider->is_active)
+                                                <form action="{{ route('admin.service_providers.suspend', $provider->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-yellow-600 hover:text-yellow-900" title="Suspendre">
+                                                        <i class="fas fa-ban"></i> Suspendre
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.service_providers.resume', $provider->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Réactiver">
+                                                        <i class="fas fa-play"></i> Réactiver
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
