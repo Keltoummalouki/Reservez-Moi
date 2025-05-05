@@ -36,12 +36,32 @@ class AdminDashboardController extends Controller
             ->take(10)
             ->get();
 
+        // Services par catégorie avec pagination
+        $servicesByCategory = \App\Models\Category::withCount('services')->paginate(10)->map(function($cat) use ($totalServices) {
+            return [
+                'name' => $cat->name,
+                'count' => $cat->services_count,
+                'percentage' => $totalServices ? round(($cat->services_count / $totalServices) * 100) : 0,
+            ];
+        });
+
+        // Aperçu des réservations
+        $todayReservations = Reservation::whereDate('created_at', today())->count();
+        $weekReservations = Reservation::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $monthReservations = Reservation::whereMonth('created_at', now()->month)->count();
+        $cancelledReservations = Reservation::where('status', 'cancelled')->count();
+
         return view('admin.dashboard', compact(
             'serviceProviders',
             'totalClients',
             'totalServices',
             'totalRevenue',
-            'recentReservations'
+            'recentReservations',
+            'servicesByCategory',
+            'todayReservations',
+            'weekReservations',
+            'monthReservations',
+            'cancelledReservations'
         ));
     }
 }

@@ -101,4 +101,74 @@ class StatisticsController extends Controller
 
         return array_slice($activities, 0, 5);
     }
+
+    public function ajax(Request $request)
+    {
+        $provider = Auth::user();
+        $period = (int) $request->get('period', 30);
+        $startDate = now()->subDays($period);
+
+        // Statistiques principales sur la période
+        $reservations = $provider->reservations()->where('created_at', '>=', $startDate);
+        $totalReservations = $reservations->count();
+        $totalRevenue = $reservations->where('status', 'completed')->sum('amount');
+        $newClients = $reservations->distinct('user_id')->count('user_id');
+        $conversionRate = 0; // À calculer si pertinent
+
+        // Croissance (par rapport à la période précédente)
+        $previousStart = now()->subDays($period * 2);
+        $previousEnd = now()->subDays($period);
+        $prevReservations = $provider->reservations()->whereBetween('created_at', [$previousStart, $previousEnd]);
+        $prevTotalReservations = $prevReservations->count();
+        $prevTotalRevenue = $prevReservations->where('status', 'completed')->sum('amount');
+        $reservationsGrowth = $prevTotalReservations > 0 ? round((($totalReservations - $prevTotalReservations) / $prevTotalReservations) * 100) : 0;
+        $revenueGrowth = $prevTotalRevenue > 0 ? round((($totalRevenue - $prevTotalRevenue) / $prevTotalRevenue) * 100) : 0;
+        $clientsGrowth = 0; // À calculer si pertinent
+        $conversionRateChange = 0; // À calculer si pertinent
+
+        // Top services
+        $topServices = $provider->services()
+            ->withCount(['reservations' => function($q) use ($startDate) {
+                $q->where('created_at', '>=', $startDate);
+            }])
+            ->orderByDesc('reservations_count')
+            ->take(5)
+            ->get()
+            ->map(function($service) {
+                $revenue = $service->reservations()->where('status', 'completed')->sum('amount');
+                return [
+                    'name' => $service->name,
+                    'reservations' => $service->reservations_count,
+                    'revenue' => $revenue,
+                ];
+            });
+
+        // Catégories populaires
+        $categories = $provider->services()->with('category')->get()->groupBy('category.name');
+        $popularCategories = collect();
+        $totalCatReservations = $reservations->count();
+        foreach ($categories as $catName => $services) {
+            $count = $services->sum(function($service) use ($startDate) {
+                return $service->reservations()->where('created_at', '>=', $startDate)->count();
+            });
+            $popularCategories->push([
+                'name' => $catName,
+                'count' => $count,
+                'percentage' => $totalCatReservations > 0 ? round(($count / $totalCatReservations) * 100) : 0
+            ]);
+        }
+
+        return response()->json([
+            'totalReservations' => $totalReservations,
+            'totalRevenue' => $totalRevenue,
+            'newClients' => $newClients,
+            'conversionRate' => $conversionRate,
+            'reservationsGrowth' => $reservationsGrowth,
+            'revenueGrowth' => $revenueGrowth,
+            'clientsGrowth' => $clientsGrowth,
+            'conversionRateChange' => $conversionRateChange,
+            'topServices' => $topServices,
+            'popularCategories' => $popularCategories,
+        ]);
+    }
 }

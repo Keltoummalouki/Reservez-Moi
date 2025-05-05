@@ -168,17 +168,25 @@
                             <option value="180">6 derniers mois</option>
                             <option value="365">Année en cours</option>
                         </select>
+                        <span id="selected-period-label" class="ml-2 text-blue-700 font-semibold"></span>
                     </div>
                     
                     <div class="flex items-center space-x-4">
                         <form id="export-form" method="GET" action="{{ route('admin.statistics.export') }}" class="inline">
                             <input type="hidden" name="period" id="export-period" value="30">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <button id="export-btn" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                                 <i class="fas fa-file-export mr-2"></i> Exporter
                             </button>
                         </form>
                     </div>
                 </div>
+            </div>
+            <!-- Loader -->
+            <div id="stats-loader" class="flex justify-center items-center py-6" style="display:none;">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
             </div>
             
             <!-- Stats Cards -->
@@ -420,10 +428,28 @@
             // Period selector
             const periodSelector = document.getElementById('period-selector');
             const exportPeriod = document.getElementById('export-period');
-            if (periodSelector && exportPeriod) {
+            const selectedPeriodLabel = document.getElementById('selected-period-label');
+            const exportBtn = document.getElementById('export-btn');
+            const statsLoader = document.getElementById('stats-loader');
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    statsLoader.style.display = 'flex';
+                    if (exportBtn) exportBtn.disabled = true;
+                    if (exportBtn) exportBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    statsLoader.style.display = 'none';
+                    if (exportBtn) exportBtn.disabled = false;
+                    if (exportBtn) exportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            if (periodSelector && exportPeriod && selectedPeriodLabel) {
                 exportPeriod.value = periodSelector.value;
+                selectedPeriodLabel.textContent = periodSelector.value === '7' ? '7 derniers jours' : periodSelector.value === '30' ? '30 derniers jours' : periodSelector.value === '90' ? '3 derniers mois' : periodSelector.value === '180' ? '6 derniers mois' : 'Année en cours';
                 periodSelector.addEventListener('change', function() {
                     exportPeriod.value = this.value;
+                    selectedPeriodLabel.textContent = this.value === '7' ? '7 derniers jours' : this.value === '30' ? '30 derniers jours' : this.value === '90' ? '3 derniers mois' : this.value === '180' ? '6 derniers mois' : 'Année en cours';
                 });
             }
             
@@ -574,12 +600,8 @@
                 });
             }
 
-            const periodSelector = document.getElementById('period-selector');
-            periodSelector.addEventListener('change', function() {
-                fetchStats(this.value);
-            });
-
             function fetchStats(period) {
+                setLoading(true);
                 fetch(`{{ route('admin.statistics.ajax') }}?period=${period}`)
                     .then(response => response.json())
                     .then(data => {
@@ -605,8 +627,25 @@
 
                         // Met à jour les graphiques (exemple Chart.js)
                         // updateCharts(data);
-                    });
+                    })
+                    .finally(() => setLoading(false));
             }
+
+            const periodSelector = document.getElementById('period-selector');
+            const selectedPeriodLabel = document.getElementById('selected-period-label');
+
+            function updatePeriodLabel() {
+                const selectedOption = periodSelector.options[periodSelector.selectedIndex].text;
+                selectedPeriodLabel.textContent = selectedOption;
+            }
+
+            // Initialisation
+            updatePeriodLabel();
+
+            periodSelector.addEventListener('change', function() {
+                updatePeriodLabel();
+                fetchStats(this.value);
+            });
         });
     </script>
 </body>

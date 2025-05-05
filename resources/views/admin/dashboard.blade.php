@@ -384,102 +384,6 @@
                 </div>
             </div>
             
-            <!-- Recent Activities & Reservations Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Recent Activities Section -->
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Activités récentes</h2>
-                        <a href="#" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
-                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-                    
-                    <div class="bg-white rounded-lg shadow overflow-hidden">
-                        <div class="p-6 space-y-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                        <i class="fas fa-user-plus"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-900">Nouveau prestataire ajouté</p>
-                                    <p class="text-sm text-gray-500">Le prestataire "Spa Zenitude" a été ajouté par Admin</p>
-                                    <p class="text-xs text-gray-400 mt-1">Il y a 2 heures</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                        <i class="fas fa-clipboard-check"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-900">Nouveau service ajouté</p>
-                                    <p class="text-sm text-gray-500">Le service "Consultation juridique" a été ajouté par Maître Dupont</p>
-                                    <p class="text-xs text-gray-400 mt-1">Il y a 5 heures</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-900">Nouvel avis client</p>
-                                    <p class="text-sm text-gray-500">Marie L. a laissé un avis 5 étoiles pour "Massage relaxant"</p>
-                                    <p class="text-xs text-gray-400 mt-1">Il y a 1 jour</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                                        <i class="fas fa-user-times"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-medium text-gray-900">Prestataire supprimé</p>
-                                    <p class="text-sm text-gray-500">Le prestataire "Salon Coiffure Express" a été supprimé par Admin</p>
-                                    <p class="text-xs text-gray-400 mt-1">Il y a 2 jours</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Recent Reservations Chart -->
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Réservations récentes</h2>
-                        <a href="#" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
-                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-                    
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <p class="text-lg font-medium text-gray-800">Vue d'ensemble</p>
-                                <p class="text-sm text-gray-500">30 derniers jours</p>
-                            </div>
-                            <select class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                                <option>30 derniers jours</option>
-                                <option>3 derniers mois</option>
-                                <option>6 derniers mois</option>
-                            </select>
-                        </div>
-                        <div class="h-60 relative">
-                            <canvas id="reservationChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Recent Reservations Table -->
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-4">
@@ -499,7 +403,6 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -549,23 +452,6 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end space-x-2">
-                                            <a href="#" class="text-primary-600 hover:text-primary-900" title="Voir les détails">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            @if($reservation->status === 'pending')
-                                                <button class="text-green-600 hover:text-green-900" title="Confirmer">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            @endif
-                                            @if($reservation->status !== 'cancelled' && $reservation->status !== 'completed')
-                                                <button class="text-red-600 hover:text-red-900" title="Annuler">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </td>
                                 </tr>
                                 @endforeach
                                 
@@ -591,7 +477,7 @@
                     </div>
                     <div class="p-4">
                         <div class="space-y-4">
-                            @foreach($servicesByCategory ?? [] as $category)
+                            @foreach($servicesByCategory as $category)
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">{{ $category['name'] }}</span>
@@ -609,6 +495,11 @@
                             </div>
                             @endif
                         </div>
+                        @if(method_exists($servicesByCategory, 'links'))
+                            <div class="mt-4">
+                                {{ $servicesByCategory->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
                 
@@ -619,40 +510,21 @@
                     </div>
                     <div class="p-4">
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-50 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
-                                <p class="text-sm font-medium text-gray-500">Aujourd'hui</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $todayReservations ?? 0 }}</p>
-                                <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <span class="text-green-600 font-medium mr-1">+{{ $todayReservationsGrowth ?? 0 }}%</span>
-                                    vs. hier
-                                </div>
+                            <div>
+                                <p>Aujourd'hui</p>
+                                <p>{{ $todayReservations }}</p>
                             </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
-                                <p class="text-sm font-medium text-gray-500">Cette semaine</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $weekReservations ?? 0 }}</p>
-                                <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <span class="text-green-600 font-medium mr-1">+{{ $weekReservationsGrowth ?? 0 }}%</span>
-                                    vs. semaine dernière
-                                </div>
+                            <div>
+                                <p>Cette semaine</p>
+                                <p>{{ $weekReservations }}</p>
                             </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
-                                <p class="text-sm font-medium text-gray-500">Ce mois</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $monthReservations ?? 0 }}</p>
-                                <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <span class="text-green-600 font-medium mr-1">+{{ $monthReservationsGrowth ?? 0 }}%</span>
-                                    vs. mois dernier
-                                </div>
+                            <div>
+                                <p>Ce mois</p>
+                                <p>{{ $monthReservations }}</p>
                             </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
-                                <p class="text-sm font-medium text-gray-500">Annulations</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $cancelledReservations ?? 0 }}</p>
-                                <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <span class="text-red-600 font-medium mr-1">{{ $cancelledReservationsGrowth ?? 0 }}%</span>
-                                    du total
-                                </div>
+                            <div>
+                                <p>Annulées</p>
+                                <p>{{ $cancelledReservations }}</p>
                             </div>
                         </div>
                     </div>
