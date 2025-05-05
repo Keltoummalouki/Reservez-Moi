@@ -482,19 +482,6 @@
     <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Si l'utilisateur a des services, le menu "Disponibilités" redirige vers le premier service
-            const availabilityMenuItem = document.getElementById('availability-menu-item');
-            if (availabilityMenuItem) {
-                @if(isset($services) && count($services) > 0)
-                    availabilityMenuItem.href = "{{ route('provider.availability.index', isset($services->first()->id) ? $services->first()->id : '') }}";
-                @elseif(isset($service))
-                    availabilityMenuItem.href = "{{ route('provider.availability.index', $service->id) }}";
-                @else
-                    availabilityMenuItem.href = "{{ route('provider.services.index') }}";
-                @endif
-            }
-        });
-        document.addEventListener('DOMContentLoaded', function() {
             // Mobile sidebar toggle
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('sidebar');
@@ -570,7 +557,7 @@
                                             <div>
                                                 <h4 class="text-sm font-medium text-gray-500">Service</h4>
                                                 <p class="mt-1 text-sm text-gray-900">${reservation.service.name}</p>
-                                                <p class="mt-1 text-sm text-gray-500">${reservation.service.category || ''}</p>
+                                                <p class="mt-1 text-sm text-gray-500">${reservation.service.category ? reservation.service.category.name : ''}</p>
                                             </div>
                                             <div>
                                                 <h4 class="text-sm font-medium text-gray-500">Date et heure</h4>

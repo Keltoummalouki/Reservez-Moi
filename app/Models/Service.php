@@ -34,11 +34,6 @@ class Service extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function availabilities()
-    {
-        return $this->hasMany(Availability::class);
-    }
-
     public function photos()
     {
         return $this->hasMany(ServicePhoto::class)->orderBy('order');

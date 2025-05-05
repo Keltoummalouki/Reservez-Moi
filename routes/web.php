@@ -175,6 +175,7 @@ Route::middleware(['auth', 'role:Client', 'throttle:10,1'])->prefix('client')->n
     Route::get('/reserve/{service}/timeslots', [ReservationController::class, 'getTimeSlots'])->name('timeslots');
     Route::post('/reserve/{service}', [ReservationController::class, 'reserve'])->name('reserve');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
+    Route::get('/reservations/ajax', [ReservationController::class, 'ajaxList'])->name('reservations.ajax');
     Route::put('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
 
     // Paiement PayPal
@@ -192,6 +193,7 @@ Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provide
     // Routes existantes
     Route::get('/dashboard', [ProviderDashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
+    Route::get('/statistics/ajax', [StatisticsController::class, 'ajax'])->name('statistics.ajax');
     Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
 
     // Services
@@ -207,20 +209,6 @@ Route::middleware(['auth', 'verified', 'role:ServiceProvider'])->prefix('provide
     Route::patch('/reservations/{reservation}/confirm', [ProviderReservationController::class, 'confirm'])->name('reservations.confirm');
     Route::patch('/reservations/{reservation}/cancel', [ProviderReservationController::class, 'cancel'])->name('reservations.cancel');
     Route::get('/reservations/{reservation}/details', [ProviderReservationController::class, 'details']);
-
-    // Disponibilités
-    Route::get('/services/{service}/availability', [ProviderAvailabilityController::class, 'index'])->name('availability.index');
-    Route::get('/services/{service}/availability/create-weekly', [ProviderAvailabilityController::class, 'createWeekly'])->name('availability.create-weekly');
-    Route::post('/services/{service}/availability/weekly', [ProviderAvailabilityController::class, 'storeWeekly'])->name('availability.store-weekly');
-    Route::get('/services/{service}/availability/create-specific', [ProviderAvailabilityController::class, 'createSpecific'])->name('availability.create-specific');
-    Route::post('/services/{service}/availability/specific', [ProviderAvailabilityController::class, 'storeSpecific'])->name('availability.store-specific');
-    Route::delete('/services/{service}/availability/{availability}', [ProviderAvailabilityController::class, 'destroy'])->name('availability.destroy');
-
-    Route::get('/provider/availability/{serviceId}/edit-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'editWeekly'])
-    ->name('provider.availability.edit-weekly');
-
-    Route::put('/provider/availability/{serviceId}/update-weekly/{availabilityId}', [ProviderAvailabilityController::class, 'updateWeekly'])
-    ->name('provider.availability.update-weekly');
 
     // Paramètres du compte service provider
     Route::get('/settings', [ProviderSettingController::class, 'index'])->name('settings');

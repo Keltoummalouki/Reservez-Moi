@@ -203,13 +203,33 @@
                     </div>
                 @endif
 
+                <!-- Filtres et recherche -->
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
+                    <div class="flex-1 mb-2 md:mb-0">
+                        <input type="text" id="search-input" placeholder="Rechercher un service, un prestataire..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+                    <div class="mb-2 md:mb-0">
+                        <select id="status-filter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">Tous les statuts</option>
+                            <option value="pending">En attente</option>
+                            <option value="confirmed">Confirmé</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="date" id="date-filter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+                </div>
+                <!-- Loader -->
+                <div id="reservations-loader" class="w-full flex justify-center py-6 hidden">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                </div>
                 <!-- Liste des réservations -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up">
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-xl font-bold text-gray-800">Vos réservations</h2>
                         <p class="text-gray-600 mt-1">Consultez l'historique et le statut de vos réservations</p>
                     </div>
-                    
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -222,102 +242,15 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody id="reservations-tbody" class="bg-white divide-y divide-gray-200">
                                 @forelse($reservations as $reservation)
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($reservation->service)
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
-                                                        <i class="fas fa-bookmark"></i>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">{{ $reservation->service->name }}</div>
-                                                        <div class="text-sm text-gray-500">{{ $reservation->service->provider->name }}</div>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <span class="text-gray-400">Service indisponible</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {{ $reservation->reservation_date ? $reservation->reservation_date->format('d/m/Y H:i') : 'N/A' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($reservation->status == 'pending')
-                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    En attente
-                                                </span>
-                                            @elseif($reservation->status == 'confirmed')
-                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Confirmé
-                                                </span>
-                                            @elseif($reservation->status == 'cancelled')
-                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Annulé
-                                                </span>
-                                            @else
-                                                {{ ucfirst($reservation->status) }}
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <div class="flex items-center">
-                                                <i class="fas fa-euro-sign mr-1 text-gray-500"></i>
-                                                {{ $reservation->amount }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($reservation->payment_status == 'completed')
-                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    <i class="fas fa-check-circle mr-1"></i> Payé
-                                                </span>
-                                            @else
-                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    <i class="fas fa-clock mr-1"></i> En attente
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            @if($reservation->payment_status == 'pending')
-                                                <a href="{{ route('client.reservations.paypal', $reservation->id) }}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm inline-flex items-center ripple">
-                                                    <i class="fab fa-paypal mr-2"></i> Payer
-                                                </a>
-                                            @elseif($reservation->status == 'pending' || $reservation->status == 'confirmed')
-                                                <form action="{{ route('client.reservations.cancel', $reservation->id) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium flex items-center" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?')">
-                                                        <i class="fas fa-times-circle mr-1"></i> Annuler
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                {{-- Le contenu initial sera remplacé dynamiquement --}}
                                 @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-gray-500">
-                                            <div class="flex flex-col items-center">
-                                                <div class="bg-gray-100 rounded-full p-4 mb-4">
-                                                    <i class="fas fa-calendar-day text-3xl text-gray-400"></i>
-                                                </div>
-                                                <p class="text-lg font-medium mb-2">Aucune réservation trouvée</p>
-                                                <p class="text-gray-500 mb-6">Vous n'avez pas encore effectué de réservation</p>
-                                                <a href="{{ route('client.services') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-md shadow-md inline-flex items-center">
-                                                    <i class="fas fa-search mr-2"></i> Découvrir des services
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    
-                    @if($reservations->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-200">
-                        {{ $reservations->links() }}
-                    </div>
-                    @endif
+                    <div id="reservations-pagination" class="px-6 py-4 border-t border-gray-200"></div>
                 </div>
             </div>
         </section>
@@ -466,6 +399,125 @@
                     behavior: 'smooth'
                 });
             });
+
+            // Recherche et filtrage dynamique des réservations
+            const searchInput = document.getElementById('search-input');
+            const statusFilter = document.getElementById('status-filter');
+            const dateFilter = document.getElementById('date-filter');
+            const tbody = document.getElementById('reservations-tbody');
+            const loader = document.getElementById('reservations-loader');
+            const pagination = document.getElementById('reservations-pagination');
+
+            function renderReservations(reservations) {
+                if (reservations.data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                        <div class='flex flex-col items-center'>
+                            <div class='bg-gray-100 rounded-full p-4 mb-4'><i class='fas fa-calendar-day text-3xl text-gray-400'></i></div>
+                            <p class='text-lg font-medium mb-2'>Aucune réservation trouvée</p>
+                            <p class='text-gray-500 mb-6'>Vous n'avez pas encore effectué de réservation</p>
+                            <a href='{{ route('client.services') }}' class='bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-md shadow-md inline-flex items-center'><i class='fas fa-search mr-2'></i> Découvrir des services</a>
+                        </div>
+                    </td></tr>`;
+                    pagination.innerHTML = '';
+                    return;
+                }
+                tbody.innerHTML = reservations.data.map(reservation => {
+                    let statusLabel = '';
+                    if (reservation.status === 'pending') {
+                        statusLabel = `<span class='px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800'>En attente</span>`;
+                    } else if (reservation.status === 'confirmed') {
+                        statusLabel = `<span class='px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>Confirmé</span>`;
+                    } else if (reservation.status === 'cancelled') {
+                        statusLabel = `<span class='px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'>Annulé</span>`;
+                    } else {
+                        statusLabel = reservation.status;
+                    }
+                    let paymentLabel = '';
+                    if (reservation.payment_status === 'completed') {
+                        paymentLabel = `<span class='px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'><i class='fas fa-check-circle mr-1'></i> Payé</span>`;
+                    } else {
+                        paymentLabel = `<span class='px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800'><i class='fas fa-clock mr-1'></i> En attente</span>`;
+                    }
+                    let actions = '';
+                    if (reservation.payment_status === 'pending') {
+                        actions = `<a href='/client/reservations/${reservation.id}/paypal' class='bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm inline-flex items-center ripple'><i class='fab fa-paypal mr-2'></i> Payer</a>`;
+                    } else if (reservation.status === 'pending' || reservation.status === 'confirmed') {
+                        actions = `<form action='/client/reservations/${reservation.id}/cancel' method='POST' class='inline'>
+                            <input type='hidden' name='_token' value='{{ csrf_token() }}'>
+                            <input type='hidden' name='_method' value='PUT'>
+                            <button type='submit' class='text-red-600 hover:text-red-800 font-medium flex items-center' onclick='return confirm("Êtes-vous sûr de vouloir annuler cette réservation?")'>
+                                <i class='fas fa-times-circle mr-1'></i> Annuler
+                            </button>
+                        </form>`;
+                    }
+                    return `<tr class='hover:bg-gray-50 transition-colors'>
+                        <td class='px-6 py-4 whitespace-nowrap'>
+                            <div class='flex items-center'>
+                                <div class='flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600'>
+                                    <i class='fas fa-bookmark'></i>
+                                </div>
+                                <div class='ml-4'>
+                                    <div class='text-sm font-medium text-gray-900'>${reservation.service ? reservation.service.name : 'Service indisponible'}</div>
+                                    <div class='text-sm text-gray-500'>${reservation.service && reservation.service.provider ? reservation.service.provider.name : ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-700'>${reservation.reservation_date ? new Date(reservation.reservation_date).toLocaleString('fr-FR') : 'N/A'}</td>
+                        <td class='px-6 py-4 whitespace-nowrap'>${statusLabel}</td>
+                        <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-700'><div class='flex items-center'><i class='fas fa-euro-sign mr-1 text-gray-500'></i> ${reservation.amount}</div></td>
+                        <td class='px-6 py-4 whitespace-nowrap'>${paymentLabel}</td>
+                        <td class='px-6 py-4 whitespace-nowrap text-sm font-medium'>${actions}</td>
+                    </tr>`;
+                }).join('');
+                // Pagination
+                let pag = '';
+                if (reservations.links && reservations.links.length > 3) {
+                    pag += `<nav class='flex justify-center'>`;
+                    reservations.links.forEach(link => {
+                        if (link.url) {
+                            pag += `<a href='#' class='mx-1 px-3 py-1 rounded-md ${link.active ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-primary-100'}' data-url='${link.url}'>${link.label.replace('Previous', '«').replace('Next', '»')}</a>`;
+                        } else {
+                            pag += `<span class='mx-1 px-3 py-1 rounded-md bg-gray-50 text-gray-400'>${link.label.replace('Previous', '«').replace('Next', '»')}</span>`;
+                        }
+                    });
+                    pag += `</nav>`;
+                }
+                pagination.innerHTML = pag;
+            }
+
+            function fetchReservations(url = null) {
+                loader.classList.remove('hidden');
+                tbody.innerHTML = '';
+                let params = new URLSearchParams();
+                if (searchInput.value) params.append('search', searchInput.value);
+                if (statusFilter.value) params.append('status', statusFilter.value);
+                if (dateFilter.value) params.append('date', dateFilter.value);
+                let fetchUrl = url || `{{ route('client.reservations.ajax') }}?${params.toString()}`;
+                fetch(fetchUrl, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                    .then(res => res.json())
+                    .then(data => {
+                        renderReservations(data.reservations);
+                    })
+                    .catch(() => {
+                        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-red-500 py-6'>Erreur lors du chargement des réservations.</td></tr>`;
+                        pagination.innerHTML = '';
+                    })
+                    .finally(() => {
+                        loader.classList.add('hidden');
+                    });
+            }
+
+            searchInput.addEventListener('input', () => fetchReservations());
+            statusFilter.addEventListener('change', () => fetchReservations());
+            dateFilter.addEventListener('change', () => fetchReservations());
+            pagination.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A' && e.target.dataset.url) {
+                    e.preventDefault();
+                    fetchReservations(e.target.dataset.url);
+                }
+            });
+            // Chargement initial
+            fetchReservations();
         });
     </script>
 </body>

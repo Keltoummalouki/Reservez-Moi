@@ -177,18 +177,24 @@
                             <option value="180">6 derniers mois</option>
                             <option value="365">Année en cours</option>
                         </select>
+                        <span id="selected-period-label" class="ml-2 text-blue-700 font-semibold"></span>
                     </div>
                     
                     <div class="flex items-center space-x-4">
-                        <form id="export-form" method="GET" action="{{ route('admin.statistics.export') }}" class="inline">
-                            <input type="hidden" name="period" id="export-period" value="30">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                <i class="fas fa-file-export mr-2"></i> Exporter
-                            </button>
-                        </form>
+                        <button id="export-btn" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-file-export mr-2"></i> Exporter
+                        </button>
                     </div>
-                            </div>
-                                        </div>
+                </div>
+            </div>
+            
+            <!-- Loader -->
+            <div id="stats-loader" class="flex justify-center items-center py-6" style="display:none;">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+            </div>
             
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -427,167 +433,197 @@
             // Period selector
             const periodSelector = document.getElementById('period-selector');
             const exportPeriod = document.getElementById('export-period');
-            if (periodSelector && exportPeriod) {
+            const selectedPeriodLabel = document.getElementById('selected-period-label');
+            const exportBtn = document.getElementById('export-btn');
+            const statsLoader = document.getElementById('stats-loader');
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    statsLoader.style.display = 'flex';
+                    if (exportBtn) exportBtn.disabled = true;
+                    if (exportBtn) exportBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    statsLoader.style.display = 'none';
+                    if (exportBtn) exportBtn.disabled = false;
+                    if (exportBtn) exportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            function updatePeriodLabel() {
+                const selectedOption = periodSelector.options[periodSelector.selectedIndex].text;
+                selectedPeriodLabel.textContent = selectedOption;
+            }
+
+            // Initialisation
+            if (periodSelector && exportPeriod && selectedPeriodLabel) {
                 exportPeriod.value = periodSelector.value;
+                updatePeriodLabel();
                 periodSelector.addEventListener('change', function() {
                     exportPeriod.value = this.value;
-                });
-            }
-            
-            // Charts
-            // Reservations Chart
-            const reservationsCtx = document.getElementById('reservationsChart');
-            if (reservationsCtx) {
-            new Chart(reservationsCtx, {
-                type: 'line',
-                data: {
-                        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
-                        datasets: [
-                            {
-                                label: 'Réservations',
-                                data: [65, 78, 90, 85, 92, 110, 120, 115, 130, 145, 160, 180],
-                                borderColor: 'rgb(59, 130, 246)',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.3,
-                                fill: true,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Revenus (€)',
-                                data: [1200, 1350, 1500, 1450, 1600, 1800, 2000, 1950, 2200, 2400, 2600, 3000],
-                                borderColor: 'rgb(16, 185, 129)',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                tension: 0.3,
-                                fill: true,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: 'Réservations'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                grid: {
-                                    drawOnChartArea: false,
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Revenus (€)'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Categories Chart
-            const categoriesCtx = document.getElementById('categoriesChart');
-            if (categoriesCtx) {
-                new Chart(categoriesCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: [
-                            @foreach($popularCategories ?? [] as $category)
-                                '{{ $category['name'] }}',
-                            @endforeach
-                        ],
-                    datasets: [{
-                            data: [
-                                @foreach($popularCategories ?? [] as $category)
-                                    {{ $category['percentage'] }},
-                                @endforeach
-                            ],
-                            backgroundColor: [
-                                'rgba(59, 130, 246, 0.8)',
-                                'rgba(16, 185, 129, 0.8)',
-                                'rgba(245, 158, 11, 0.8)',
-                                'rgba(239, 68, 68, 0.8)',
-                                'rgba(139, 92, 246, 0.8)'
-                            ],
-                            borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                                position: 'bottom',
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Funnel Chart
-            const funnelCtx = document.getElementById('funnelChart');
-            if (funnelCtx) {
-                new Chart(funnelCtx, {
-                type: 'bar',
-                data: {
-                        labels: ['Visites', 'Recherches', 'Vues de services', 'Tentatives de réservation', 'Réservations complétées'],
-                    datasets: [{
-                            label: 'Nombre d\'utilisateurs',
-                            data: [1000, 750, 500, 300, 200],
-                            backgroundColor: [
-                                'rgba(59, 130, 246, 0.8)',
-                                'rgba(59, 130, 246, 0.7)',
-                                'rgba(59, 130, 246, 0.6)',
-                                'rgba(59, 130, 246, 0.5)',
-                                'rgba(59, 130, 246, 0.4)'
-                            ],
-                            borderColor: [
-                                'rgb(59, 130, 246)',
-                                'rgb(59, 130, 246)',
-                                'rgb(59, 130, 246)',
-                                'rgb(59, 130, 246)',
-                                'rgb(59, 130, 246)'
-                            ],
-                            borderWidth: 1
-                    }]
-                },
-                options: {
-                        indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                            x: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
+                    updatePeriodLabel();
                 });
             }
 
-            const periodSelector = document.getElementById('period-selector');
-            periodSelector.addEventListener('change', function() {
-                fetchStats(this.value);
-            });
+            // Charts instances (pour update)
+            let reservationsChart = null;
+            let categoriesChart = null;
+            let funnelChart = null;
+
+            // Initialisation des charts (si besoin)
+            function initCharts() {
+                const reservationsCtx = document.getElementById('reservationsChart');
+                if (reservationsCtx) {
+                    reservationsChart = new Chart(reservationsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                            datasets: [
+                                {
+                                    label: 'Réservations',
+                                    data: [0,0,0,0,0,0,0,0,0,0,0,0],
+                                    borderColor: 'rgb(59, 130, 246)',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    tension: 0.3,
+                                    fill: true,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Revenus (€)',
+                                    data: [0,0,0,0,0,0,0,0,0,0,0,0],
+                                    borderColor: 'rgb(16, 185, 129)',
+                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                    tension: 0.3,
+                                    fill: true,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    title: {
+                                        display: true,
+                                        text: 'Réservations'
+                                    }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    grid: {
+                                        drawOnChartArea: false,
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Revenus (€)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                const categoriesCtx = document.getElementById('categoriesChart');
+                if (categoriesCtx) {
+                    categoriesChart = new Chart(categoriesCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                data: [],
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                }
+                            }
+                        }
+                    });
+                }
+                const funnelCtx = document.getElementById('funnelChart');
+                if (funnelCtx) {
+                    funnelChart = new Chart(funnelCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Visites', 'Recherches', 'Vues de services', 'Tentatives de réservation', 'Réservations complétées'],
+                            datasets: [{
+                                label: "Nombre d'utilisateurs",
+                                data: [0,0,0,0,0],
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.8)',
+                                    'rgba(59, 130, 246, 0.7)',
+                                    'rgba(59, 130, 246, 0.6)',
+                                    'rgba(59, 130, 246, 0.5)',
+                                    'rgba(59, 130, 246, 0.4)'
+                                ],
+                                borderColor: [
+                                    'rgb(59, 130, 246)',
+                                    'rgb(59, 130, 246)',
+                                    'rgb(59, 130, 246)',
+                                    'rgb(59, 130, 246)',
+                                    'rgb(59, 130, 246)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Met à jour les données des charts
+            function updateCharts(data) {
+                if (reservationsChart) {
+                    // À adapter si tu veux des vraies données par mois
+                    reservationsChart.data.datasets[0].data = [data.totalReservations];
+                    reservationsChart.data.datasets[1].data = [data.totalRevenue];
+                    reservationsChart.update();
+                }
+                if (categoriesChart) {
+                    categoriesChart.data.labels = data.popularCategories.map(c => c.name);
+                    categoriesChart.data.datasets[0].data = data.popularCategories.map(c => c.percentage);
+                    categoriesChart.update();
+                }
+                // funnelChart: à adapter si tu veux des vraies données
+            }
 
             function fetchStats(period) {
-                fetch(`{{ route('admin.statistics.ajax') }}?period=${period}`)
+                setLoading(true);
+                fetch(`{{ route('provider.statistics.ajax') }}?period=${period}`)
                     .then(response => response.json())
                     .then(data => {
                         // Met à jour les cards
@@ -602,7 +638,6 @@
                         data.topServices.forEach(service => {
                             tbody += `<tr>
                                 <td>${service.name}</td>
-                                <td>${service.provider}</td>
                                 <td>${service.reservations}</td>
                                 <td>${service.revenue} €</td>
                                 <td><!-- taux de conversion ou autre --></td>
@@ -611,9 +646,18 @@
                         document.getElementById('top-services-tbody').innerHTML = tbody;
 
                         // Met à jour les graphiques (exemple Chart.js)
-                        // updateCharts(data);
-                    });
+                        updateCharts(data);
+                    })
+                    .finally(() => setLoading(false));
             }
+
+            // Initialisation
+            initCharts();
+            updatePeriodLabel();
+            periodSelector.addEventListener('change', function() {
+                updatePeriodLabel();
+                fetchStats(this.value);
+            });
         });
     </script>
 </body>

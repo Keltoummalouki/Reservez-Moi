@@ -465,8 +465,7 @@
                                         <div>
                                             <h4 class="text-sm font-medium text-gray-500">Service</h4>
                                             <p class="mt-1 text-sm text-gray-900">${reservation.service.name}</p>
-                                            <p class="mt-1 text-sm text-gray-500">${reservation.service.category || ''}</p>
-                                        </div>
+                                                <p class="mt-1 text-sm text-gray-500">${reservation.service.category ? reservation.service.category.name : ''}</p>                                        </div>
                                         <div>
                                             <h4 class="text-sm font-medium text-gray-500">Date et heure</h4>
                                             <p class="mt-1 text-sm text-gray-900">${new Date(reservation.reservation_date).toLocaleDateString('fr-FR')} à ${new Date(reservation.reservation_date).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>

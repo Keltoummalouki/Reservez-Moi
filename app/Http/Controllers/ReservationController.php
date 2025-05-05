@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Reservation;
-use App\Models\Availability;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\ReservationCreated;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -43,7 +42,7 @@ class ReservationController extends Controller
         // Pour chaque jour, vérifier s'il y a des créneaux disponibles
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dateString = $date->format('Y-m-d');
-            $slots = Availability::getAvailableSlots($serviceId, $dateString);
+            $slots = [];
             
             if (count($slots) > 0) {
                 $availableDates[] = [
@@ -75,7 +74,7 @@ class ReservationController extends Controller
         $service = Service::findOrFail($serviceId);
         
         // Obtenir les créneaux disponibles
-        $slots = Availability::getAvailableSlots($serviceId, $validated['date']);
+        $slots = [];
         
         // Formatter les créneaux pour l'affichage
         $formattedSlots = [];
@@ -112,10 +111,6 @@ class ReservationController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        // $datetime = $request->input('reservation_datetime');
-        // if (!Availability::isAvailable($serviceId, $datetime)) {
-        //     return back()->with('error', 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.');
-        // }
 
         try {
             $reservation = $this->reservationService->makeReservation($serviceId, $request->all());
@@ -214,5 +209,38 @@ class ReservationController extends Controller
             ->paginate(10);
 
         return view('client.reservations', compact('reservations'));
+    }
+
+    /**
+     * Retourne la liste des réservations filtrées (AJAX)
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ajaxList(Request $request)
+    {
+        $query = Auth::user()->reservations()->with(['service.provider']);
+
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->whereHas('service', function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%")
+                  ->orWhereHas('provider', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%") ;
+                  });
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+        if ($request->filled('date')) {
+            $query->whereDate('reservation_date', $request->get('date'));
+        }
+        $reservations = $query->latest()->paginate(10);
+        return response()->json([
+            'reservations' => $reservations
+        ]);
     }
 }
