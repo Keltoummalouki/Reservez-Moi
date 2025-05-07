@@ -20,7 +20,6 @@ class AdminServiceProviderController extends Controller
             $query->where('name', 'ServiceProvider');
         })->with('services')->get();
 
-        // Récupérer les statistiques pour les prestataires
         $totalServices = 0;
         $newProviders = User::whereHas('roles', function ($query) {
             $query->where('name', 'ServiceProvider');
@@ -28,7 +27,6 @@ class AdminServiceProviderController extends Controller
 
         $totalRevenue = 0;
 
-        // Calculer le nombre total de services et le revenu total
         foreach ($serviceProviders as $provider) {
             $totalServices += $provider->services->count();
             foreach ($provider->services as $service) {
@@ -36,7 +34,6 @@ class AdminServiceProviderController extends Controller
             }
         }
 
-        // Récupérer les prestataires les plus performants
         $topProviders = User::whereHas('roles', function ($query) {
             $query->where('name', 'ServiceProvider');
         })

@@ -31,6 +31,7 @@ use App\Http\Controllers\ProfileController as ProviderProfileController;
 use App\Http\Controllers\SettingsController as ProviderSettingsController;
 use App\Http\Controllers\ServiceController as AdminServiceController;
 use App\Http\Controllers\ProviderSettingController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,9 +44,8 @@ use App\Http\Controllers\ProviderSettingController;
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home/services/ajax', [HomeController::class, 'ajaxList'])->name('home.services.ajax');
 
 // Routes d'authentification
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -165,11 +165,12 @@ Route::get('login/facebook/callback', function () {
     return redirect()->route('home');
 });
 
+// Services catalogue public
+Route::get('/client/services', [ClientServiceController::class, 'index'])->name('client.services');
+Route::get('/client/services/ajax', [ClientServiceController::class, 'ajaxList'])->name('client.services.ajax');
+
 // Routes pour les clients
 Route::middleware(['auth', 'role:Client', 'throttle:10,1'])->prefix('client')->name('client.')->group(function () {
-    // Services
-    Route::get('/services', [ClientServiceController::class, 'index'])->name('services');
-
     // Réservations
     Route::get('/reserve/{service}/form', [ReservationController::class, 'showForm'])->name('reserve.form');
     Route::get('/reserve/{service}/timeslots', [ReservationController::class, 'getTimeSlots'])->name('timeslots');

@@ -426,6 +426,58 @@
     background-color: inherit;
     z-index: -1;
   }
+
+  /* Filtres et recherche */
+  .category-filter {
+    transition: all 0.3s ease;
+  }
+  
+  .category-filter.active {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .service-card {
+    transition: all 0.3s ease;
+    transform: scale(1);
+  }
+  
+  .service-card.hidden {
+    display: none;
+  }
+  
+  .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .search-highlight {
+    background-color: rgba(37, 99, 235, 0.2);
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+  
+  .no-results {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+  }
+  
+  .no-results.show {
+    display: block;
+  }
+  
+  /* Animations pour les filtres */
+  .filter-animation {
+    animation: filterPulse 0.5s ease-in-out;
+  }
+  
+  @keyframes filterPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
 </style>
 </head>
 <body class="flex min-h-screen flex-col">
@@ -438,7 +490,6 @@
 <div class="progress-bar" id="progressBar"></div>
 
 <!-- Header/Navigation -->
-<!-- Header/Navigation -->
 <header id="main-header" class="fixed top-0 z-50 w-full transition-all duration-300 bg-white">
   <div class="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
     <div class="flex items-center gap-2">
@@ -449,7 +500,7 @@
     </div>
     <nav class="hidden md:flex gap-6">
       <a href="#how-it-works" class="text-sm font-medium animated-underline transition-colors">Comment ça marche</a>
-      <a href="#sectors" class="text-sm font-medium animated-underline transition-colors">Secteurs</a>
+      <a href="#services" class="text-sm font-medium animated-underline transition-colors">Services</a>
       <a href="#features" class="text-sm font-medium animated-underline transition-colors">Fonctionnalités</a>
       <a href="#testimonials" class="text-sm font-medium animated-underline transition-colors">Témoignages</a>
       <a href="#faq" class="text-sm font-medium animated-underline transition-colors">FAQ</a>
@@ -496,7 +547,7 @@
     </div>
     <nav class="flex flex-col p-4">
       <a href="#how-it-works" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">Comment ça marche</a>
-      <a href="#sectors" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">Secteurs</a>
+      <a href="#services" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">Services</a>
       <a href="#features" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">Fonctionnalités</a>
       <a href="#testimonials" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">Témoignages</a>
       <a href="#faq" class="border-b border-gray-100 py-4 text-lg font-medium hover:text-primary-600 transition-colors mobile-link">FAQ</a>
@@ -645,83 +696,67 @@
             <div class="md:col-span-1">
               <label for="sector-select" class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
               <select id="sector-select" class="w-full rounded-md border border-gray-200 py-2.5 px-3 text-sm custom-select focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                <option value="" selected disabled>Choisir</option>
+                <option value="all" selected>Tous les secteurs</option>
                 <option value="medical">Médical</option>
+                <option value="beauty">Beauté & Bien-être</option>
+                <option value="home">Services à domicile</option>
                 <option value="legal">Juridique</option>
-                <option value="beauty">Beauté & Spa</option>
-                <option value="hotel">Hôtel</option>
-                <option value="restaurant">Restaurant</option>
+                <option value="coaching">Coaching</option>
               </select>
             </div>
             <div class="md:col-span-2">
+              <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
+              <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="Nom du service ou prestataire"
+                  class="w-full rounded-md border border-gray-200 pl-10 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+            <div class="md:col-span-1">
               <label for="location-input" class="block text-sm font-medium text-gray-700 mb-1">Où?</label>
               <div class="relative">
                 <i class="fas fa-map-marker-alt absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input
                   id="location-input"
                   type="text"
-                  placeholder="Ville, code postal ou adresse"
+                  placeholder="Ville ou code postal"
                   class="w-full rounded-md border border-gray-200 pl-10 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                />
-              </div>
-            </div>
-            <div class="md:col-span-1">
-              <label for="date-picker" class="block text-sm font-medium text-gray-700 mb-1">Quand?</label>
-              <div class="relative">
-                <i class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input
-                  type="text"
-                  placeholder="Date"
-                  class="w-full rounded-md border border-gray-200 pl-10 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                  id="date-picker"
                 />
               </div>
             </div>
             <div class="md:col-span-1">
               <label class="block text-sm font-medium text-gray-700 mb-1 opacity-0">Rechercher</label>
-              <button class="bg-primary-600 hover:bg-primary-700 text-white w-full rounded-md py-2.5 transition-colors shadow-md hover:shadow-lg ripple">
+              <button id="search-button" class="bg-primary-600 hover:bg-primary-700 text-white w-full rounded-md py-2.5 transition-colors shadow-md hover:shadow-lg ripple">
                 <i class="fas fa-search mr-2"></i> Rechercher
               </button>
             </div>
-          </div>
-          
-          <div class="flex flex-wrap justify-center gap-3 pt-4">
-            <span class="text-xs text-gray-500">Recherches populaires:</span>
-            <a href="#" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700 transition-colors">Dentiste Paris</a>
-            <a href="#" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700 transition-colors">Avocat droit familial</a>
-            <a href="#" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700 transition-colors">Massage relaxant</a>
-            <a href="#" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700 transition-colors">Restaurant italien</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Stats Section -->
-  <section class="py-16 bg-white">
+  <!-- Services Section -->
+  <section id="services" class="py-20 bg-white">
     <div class="container mx-auto px-4 md:px-6">
-      <div class="mx-auto max-w-6xl">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div class="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
-            <div class="text-4xl font-bold text-primary-600 mb-2 counter-value" data-target="2500">0</div>
-            <p class="text-gray-500">Prestataires</p>
-          </div>
-          <div class="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
-            <div class="text-4xl font-bold text-primary-600 mb-2 counter-value" data-target="150000">0</div>
-            <p class="text-gray-500">Utilisateurs actifs</p>
-          </div>
-          <div class="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
-            <div class="text-4xl font-bold text-primary-600 mb-2 counter-value" data-target="5">0</div>
-            <p class="text-gray-500">Secteurs couverts</p>
-          </div>
-          <div class="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="400">
-            <div class="text-4xl font-bold text-primary-600 mb-2 counter-value" data-target="98">0</div>
-            <p class="text-gray-500">% de satisfaction</p>
-          </div>
+        ...
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="home-services-list">
+            @include('client.partials.services_list', ['services' => $services])
         </div>
-      </div>
+        <div id="home-services-loader" class="w-full flex justify-center py-6 hidden">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+        <div id="home-services-pagination" class="flex justify-center mt-12" data-aos="fade-up">
+            @if($services->hasPages())
+                {{ $services->links() }}
+            @endif
+        </div>
     </div>
-  </section>
+</section>
 
   <!-- How it works Section -->
   <section id="how-it-works" class="py-20 bg-gray-50 skewed">
@@ -739,8 +774,8 @@
       <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         <div class="bg-white p-8 rounded-xl shadow-md text-center card-hover" data-aos="fade-up" data-aos-delay="100">
           <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 text-2xl font-bold mx-auto mb-6">1</div>
-          <h3 class="text-xl font-bold mb-4">Choisissez un secteur</h3>
-          <p class="text-gray-600 mb-4">Sélectionnez le type de service dont vous avez besoin parmi nos 5 secteurs.</p>
+          <h3 class="text-xl font-bold mb-4">Choisissez un service</h3>
+          <p class="text-gray-600 mb-4">Sélectionnez le type de service dont vous avez besoin parmi nos nombreuses catégories.</p>
           <img src="https://cdn-icons-png.flaticon.com/512/3588/3588614.png" alt="Choose sector" class="w-24 h-24 mx-auto opacity-75 floating">
         </div>
         
@@ -756,197 +791,6 @@
           <h3 class="text-xl font-bold mb-4">Réservez votre créneau</h3>
           <p class="text-gray-600 mb-4">Choisissez une date et une heure disponible et confirmez votre réservation.</p>
           <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" alt="Book slot" class="w-24 h-24 mx-auto opacity-75 floating">
-        </div>
-      </div>
-      
-      <!-- Video Presentation -->
-      <div class="max-w-4xl mx-auto mt-16 rounded-xl overflow-hidden shadow-xl" data-aos="zoom-in">
-        <div class="relative pb-[56.25%] h-0">
-          <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
-            <div class="text-center">
-              <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-primary-700 transition-colors shadow-lg">
-                <i class="fas fa-play text-white text-2xl"></i>
-              </div>
-              <p class="text-gray-600 font-medium">Voir comment ça fonctionne</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Sectors Section -->
-  <section id="sectors" class="py-20 bg-white">
-    <div class="container mx-auto px-4 md:px-6">
-      <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-        <span class="inline-block px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium mb-4">Nos Secteurs</span>
-        <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
-          Découvrez tous <span class="text-gradient">nos services</span>
-        </h2>
-        <p class="text-gray-600 text-lg">
-          Reservez-moi couvre une large gamme de secteurs pour répondre à tous vos besoins de réservation
-        </p>
-      </div>
-      
-      <div class="mx-auto grid max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Sector Cards -->
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="100">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">🏥</div>
-            <h3 class="text-2xl font-bold">Médecins & Hôpitaux</h3>
-            <p class="text-gray-600">Consultations médicales et hospitalières avec des professionnels qualifiés</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Généralistes</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Spécialistes</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Urgences</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-        
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="200">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">⚖️</div>
-            <h3 class="text-2xl font-bold">Services Juridiques</h3>
-            <p class="text-gray-600">Avocats, notaires et conseillers juridiques pour tous vos besoins légaux</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Droit familial</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Immobilier</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Entreprises</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-        
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="300">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">💆</div>
-            <h3 class="text-2xl font-bold">Salons de Beauté & Spas</h3>
-            <p class="text-gray-600">Soins de beauté et de bien-être pour vous détendre et vous ressourcer</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Massages</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Coiffure</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Soins du visage</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-        
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="400">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">🏨</div>
-            <h3 class="text-2xl font-bold">Hôtels</h3>
-            <p class="text-gray-600">Chambres et services d'hébergement pour vos séjours professionnels ou de loisirs</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Chambres</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Suites</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Services</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-        
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="500">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">🍽️</div>
-            <h3 class="text-2xl font-bold">Restaurants</h3>
-            <p class="text-gray-600">Réservation de tables et services de restauration pour tous vos repas</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Gastronomique</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Bistro</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">International</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-        
-        <a href="#" class="group relative overflow-hidden rounded-xl border bg-white p-8 shadow-md transition-all hover:shadow-xl card-hover" data-aos="fade-up" data-aos-delay="600">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-primary-100 rounded-bl-full"></div>
-          <div class="flex flex-col items-center text-center space-y-4">
-            <div class="text-5xl mb-2 z-10 floating">🔍</div>
-            <h3 class="text-2xl font-bold">Tous les Services</h3>
-            <p class="text-gray-600">Découvrez l'ensemble de nos services et trouvez exactement ce dont vous avez besoin</p>
-            <div class="pt-4 flex flex-wrap gap-2 justify-center">
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Recherche avancée</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Filtres</span>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Comparaison</span>
-            </div>
-            <button class="mt-4 text-primary-600 font-medium group-hover:text-primary-700 transition-colors flex items-center">
-              Explorer <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-            </button>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- App Showcase Section -->
-  <section class="py-20 bg-gradient-to-r from-primary-50 to-primary-100 overflow-hidden">
-    <div class="container mx-auto px-4 md:px-6">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-6" data-aos="fade-right">
-          <span class="inline-block px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium mb-2">Application Mobile</span>
-          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
-            Réservez où que vous soyez avec notre <span class="text-gradient">application mobile</span>
-          </h2>
-          <p class="text-gray-600 text-lg">
-            Téléchargez notre application pour iOS et Android et profitez de toutes les fonctionnalités de Reservez-moi, même en déplacement.
-          </p>
-          <ul class="space-y-3">
-            <li class="flex items-start">
-              <div class="bg-primary-100 p-1 rounded-full mt-1 mr-3">
-                <i class="fas fa-check text-primary-600 text-sm"></i>
-              </div>
-              <p class="text-gray-600">Réservations instantanées et notifications en temps réel</p>
-            </li>
-            <li class="flex items-start">
-              <div class="bg-primary-100 p-1 rounded-full mt-1 mr-3">
-                <i class="fas fa-check text-primary-600 text-sm"></i>
-              </div>
-              <p class="text-gray-600">Géolocalisation pour trouver les services à proximité</p>
-            </li>
-            <li class="flex items-start">
-              <div class="bg-primary-100 p-1 rounded-full mt-1 mr-3">
-                <i class="fas fa-check text-primary-600 text-sm"></i>
-              </div>
-              <p class="text-gray-600">Gestion de vos réservations même hors connexion</p>
-            </li>
-          </ul>
-          <div class="flex flex-wrap gap-4 pt-4">
-            <a href="#" class="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-              <i class="fab fa-apple text-2xl mr-2"></i>
-              <div class="text-left">
-                <p class="text-xs">Télécharger sur l'</p>
-                <p class="text-sm font-semibold">App Store</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-              <i class="fab fa-google-play text-2xl mr-2"></i>
-              <div class="text-left">
-                <p class="text-xs">Disponible sur</p>
-                <p class="text-sm font-semibold">Google Play</p>
-              </div>
-            </a>
-          </div>
-        </div>
-        <div class="relative" data-aos="fade-left">
-          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary-400 rounded-full opacity-20 animate-pulse-slow"></div>
-          <img src="https://cdn-icons-png.flaticon.com/512/2586/2586488.png" alt="Mobile App" class="w-full max-w-md mx-auto floating">
         </div>
       </div>
     </div>
@@ -1086,7 +930,7 @@
           <ul class="text-left w-full space-y-2 mt-4">
             <li class="flex items-center">
               <i class="fas fa-check text-green-500 mr-2"></i>
-              <span class="text-sm text-gray-600">5 secteurs différents</span>
+              <span class="text-sm text-gray-600">Nombreuses catégories</span>
             </li>
             <li class="flex items-center">
               <i class="fas fa-check text-green-500 mr-2"></i>
@@ -1223,24 +1067,6 @@
           <div class="swiper-pagination"></div>
         </div>
       </div>
-      
-      <!-- Testimonial Video -->
-      <div class="max-w-4xl mx-auto mt-16 bg-white rounded-xl shadow-xl overflow-hidden" data-aos="zoom-in">
-        <div class="p-8 text-center">
-          <h3 class="text-2xl font-bold mb-4">Découvrez l'expérience Reservez-moi</h3>
-          <p class="text-gray-600 mb-6">Regardez comment nos utilisateurs utilisent notre plateforme au quotidien</p>
-          <div class="relative pb-[56.25%] h-0 rounded-lg overflow-hidden">
-            <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-primary-700 transition-colors shadow-lg">
-                  <i class="fas fa-play text-white text-2xl"></i>
-                </div>
-                <p class="text-gray-600 font-medium">Voir les témoignages vidéo</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1321,33 +1147,6 @@
     </div>
   </section>
 
-  <!-- Newsletter Section -->
-  <section class="py-12 bg-gray-50">
-    <div class="container mx-auto px-4 md:px-6">
-      <div class="max-w-4xl mx-auto bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-8 md:p-12 shadow-xl" data-aos="fade-up">
-        <div class="grid md:grid-cols-2 gap-8 items-center">
-          <div class="text-white">
-            <h3 class="text-2xl font-bold mb-4">Restez informé</h3>
-            <p class="mb-6 text-white/90">Inscrivez-vous à notre newsletter pour recevoir nos dernières actualités et offres exclusives</p>
-            <div class="flex flex-col sm:flex-row gap-3">
-              <input type="email" placeholder="Votre adresse e-mail" class="flex-1 rounded-md border-0 px-4 py-3 text-sm focus:ring-2 focus:ring-white/50">
-              <button class="bg-white text-primary-600 hover:bg-gray-100 rounded-md px-6 py-3 font-medium transition-colors shadow-md hover:shadow-lg ripple">
-                <i class="fas fa-paper-plane mr-2"></i> S'inscrire
-              </button>
-            </div>
-            <p class="text-xs text-white/80 mt-3">En vous inscrivant, vous acceptez de recevoir nos communications marketing. Vous pouvez vous désinscrire à tout moment.</p>
-          </div>
-          <div class="hidden md:flex justify-center">
-            <div class="relative">
-              <div class="absolute inset-0 bg-white/10 rounded-full animate-pulse-slow"></div>
-              <img src="https://cdn-icons-png.flaticon.com/512/1057/1057072.png" alt="Newsletter" class="w-48 h-48 relative z-10 floating">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- CTA Section -->
   <section class="py-20 bg-primary-600 text-white overflow-hidden relative">
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -1371,15 +1170,6 @@
           <button class="rounded-md border border-white px-8 py-4 font-medium text-white hover:bg-primary-700 focus:outline-none transition-colors ripple">
             <i class="fas fa-headset mr-2"></i> Contacter un conseiller
           </button>
-        </div>
-        <div class="pt-6">
-          <p class="text-sm text-white/80">Déjà plus de 150 000 utilisateurs satisfaits</p>
-          <div class="flex flex-wrap justify-center gap-8 mt-6">
-            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Trustpilot" class="h-8 opacity-80">
-            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968764.png" alt="Google" class="h-8 opacity-80">
-            <img src="https://cdn-icons-png.flaticon.com/512/174/174848.png" alt="Facebook" class="h-8 opacity-80">
-            <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" class="h-8 opacity-80">
-          </div>
         </div>
       </div>
     </div>
@@ -1417,7 +1207,7 @@
         </div>
       </div>
       <div class="flex flex-col gap-4">
-        <h3 class="text-sm font-bold">Secteurs</h3>
+        <h3 class="text-sm font-bold">Services</h3>
         <nav class="flex flex-col gap-2">
           <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
             Médecins & Hôpitaux
@@ -1429,10 +1219,10 @@
             Salons de Beauté & Spas
           </a>
           <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-            Hôtels
+            Services à domicile
           </a>
           <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">
-            Restaurants
+            Coaching
           </a>
         </nav>
       </div>
@@ -1524,6 +1314,57 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
+  // Données des catégories et services
+  const categories = [
+    { id: 1, name: "Médecins / Professionnels de santé", slug: "medecins-professionnels-de-sante", parent_id: null },
+    { id: 2, name: "Médecin généraliste", slug: "medecin-generaliste", parent_id: 1 },
+    { id: 3, name: "Dentiste", slug: "dentiste", parent_id: 1 },
+    { id: 4, name: "Gynécologue", slug: "gynecologue", parent_id: 1 },
+    { id: 5, name: "Dermatologue", slug: "dermatologue", parent_id: 1 },
+    { id: 6, name: "Kinésithérapeute", slug: "kinesitherapeute", parent_id: 1 },
+    { id: 7, name: "Psychologue", slug: "psychologue", parent_id: 1 },
+    { id: 8, name: "Cardiologue", slug: "cardiologue", parent_id: 1 },
+    { id: 9, name: "Pédiatre", slug: "pediatre", parent_id: 1 },
+    { id: 10, name: "Bien-être et beauté", slug: "bien-etre-et-beaute", parent_id: null },
+    { id: 11, name: "Coiffeur / Coiffeuse", slug: "coiffeur-coiffeuse", parent_id: 10 },
+    { id: 12, name: "Esthéticienne", slug: "estheticienne", parent_id: 10 },
+    { id: 13, name: "Masseuse", slug: "masseuse", parent_id: 10 },
+    { id: 14, name: "Spa", slug: "spa", parent_id: 10 },
+    { id: 15, name: "Salon de manucure", slug: "salon-de-manucure", parent_id: 10 },
+    { id: 16, name: "Maquilleuse", slug: "maquilleuse", parent_id: 10 },
+    { id: 17, name: "Services à domicile", slug: "services-a-domicile", parent_id: null },
+    { id: 18, name: "Plombier", slug: "plombier", parent_id: 17 },
+    { id: 19, name: "Électricien", slug: "electricien", parent_id: 17 },
+    { id: 20, name: "Femme de ménage", slug: "femme-de-menage", parent_id: 17 },
+    { id: 21, name: "Technicien électroménager", slug: "technicien-electromenager", parent_id: 17 },
+    { id: 22, name: "Jardinier", slug: "jardinier", parent_id: 17 },
+    { id: 23, name: "Conseils et coaching", slug: "conseils-et-coaching", parent_id: null },
+    { id: 24, name: "Coach sportif", slug: "coach-sportif", parent_id: 23 },
+    { id: 25, name: "Coach en nutrition", slug: "coach-en-nutrition", parent_id: 23 }
+  ];
+  
+  // Générer des services fictifs basés sur les catégories
+  const services = [];
+  categories.forEach(category => {
+    if (category.parent_id !== null) {
+      // Générer 3 services par sous-catégorie
+      for (let i = 1; i <= 3; i++) {
+        services.push({
+          id: services.length + 1,
+          name: `${category.name} ${i}`,
+          category_id: category.id,
+          parent_category_id: category.parent_id,
+          description: `Service de ${category.name} professionnel et de qualité.`,
+          rating: (4 + Math.random()).toFixed(1),
+          reviews: Math.floor(Math.random() * 100) + 10,
+          price: Math.floor(Math.random() * 100) + 30,
+          location: ["Paris", "Lyon", "Marseille", "Bordeaux", "Lille"][Math.floor(Math.random() * 5)],
+          image: `https://source.unsplash.com/random/300x200?${category.slug}`
+        });
+      }
+    }
+  });
+
   // Initialize AOS
   document.addEventListener('DOMContentLoaded', function() {
     AOS.init({
@@ -1579,20 +1420,6 @@
       }
     });
     
-    // Date picker functionality (basic)
-    const datePicker = document.getElementById('date-picker');
-    if (datePicker) {
-      datePicker.addEventListener('focus', function() {
-        this.type = 'date';
-      });
-      
-      datePicker.addEventListener('blur', function() {
-        if (!this.value) {
-          this.type = 'text';
-        }
-      });
-    }
-    
     // Testimonial slider
     const testimonialSwiper = new Swiper('.testimonial-swiper', {
       slidesPerView: 1,
@@ -1631,59 +1458,6 @@
       });
     });
     
-    // Counter animation
-    const counters = document.querySelectorAll('.counter-value');
-    const options = {
-      threshold: 0.5
-    };
-    
-    const observer = new IntersectionObserver(function(entries, observer) {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const counter = entry.target;
-          const target = parseInt(counter.getAttribute('data-target'));
-          let count = 0;
-          const speed = Math.floor(2000 / target);
-          
-          const updateCount = () => {
-            const increment = target / 100;
-            if (count < target) {
-              count += increment;
-              counter.innerText = Math.ceil(count).toLocaleString();
-              setTimeout(updateCount, speed);
-            } else {
-              counter.innerText = target.toLocaleString();
-            }
-          };
-          
-          updateCount();
-          observer.unobserve(counter);
-        }
-      });
-    }, options);
-    
-    counters.forEach(counter => {
-      observer.observe(counter);
-    });
-    
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 100,
-            behavior: 'smooth'
-          });
-        }
-      });
-    });
-    
     // Back to top button
     const backToTopButton = document.getElementById('back-to-top');
     window.addEventListener('scroll', function() {
@@ -1706,45 +1480,16 @@
     // Dark mode toggle
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const body = document.body;
-    const darkElements = document.querySelectorAll('.dark-bg, .dark-text');
     
     darkModeToggle.addEventListener('click', function() {
       body.classList.toggle('dark-mode');
       
       if (body.classList.contains('dark-mode')) {
-        darkModeToggle.innerHTML = '<i class="fas fa-sun text-lg"></i>';
-        darkModeToggle.querySelector('.tooltip-text').textContent = 'Mode clair';
+        darkModeToggle.innerHTML = '<i class="fas fa-sun text-lg"></i><span class="tooltip-text text-xs">Mode clair</span>';
       } else {
-        darkModeToggle.innerHTML = '<i class="fas fa-moon text-lg"></i>';
-        darkModeToggle.querySelector('.tooltip-text').textContent = 'Mode sombre';
+        darkModeToggle.innerHTML = '<i class="fas fa-moon text-lg"></i><span class="tooltip-text text-xs">Mode sombre</span>';
       }
-      
-      darkElements.forEach(el => {
-        el.classList.toggle('dark-active');
-      });
     });
-    
-    // Tilt effect for hero image
-    const heroImageContainer = document.getElementById('hero-image-container');
-    if (heroImageContainer) {
-      heroImageContainer.addEventListener('mousemove', function(e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const xPercent = x / rect.width;
-        const yPercent = y / rect.height;
-        
-        const rotateX = (0.5 - yPercent) * 10;
-        const rotateY = (xPercent - 0.5) * 10;
-        
-        this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      });
-      
-      heroImageContainer.addEventListener('mouseleave', function() {
-        this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-      });
-    }
     
     // Chat support button
     const chatSupportButton = document.getElementById('chat-support');
@@ -1753,8 +1498,486 @@
         alert('Le chat de support sera disponible prochainement!');
       });
     }
+    
+    // Initialiser les filtres de catégories
+    initCategoryFilters();
+    
+    // Initialiser la grille de services
+    initServicesGrid();
+    
+    // Initialiser la recherche
+    initSearch();
+  });
+  
+  // Fonction pour initialiser les filtres de catégories
+  function initCategoryFilters() {
+    const categoryFilters = document.querySelectorAll('.category-filter');
+    const subcategoryFiltersContainer = document.getElementById('subcategory-filters');
+    
+    // Ajouter les écouteurs d'événements pour les filtres de catégories principales
+    categoryFilters.forEach(filter => {
+      filter.addEventListener('click', function() {
+        // Supprimer la classe active de tous les filtres
+        categoryFilters.forEach(f => f.classList.remove('active'));
+        
+        // Ajouter la classe active au filtre cliqué
+        this.classList.add('active');
+        
+        // Récupérer la catégorie sélectionnée
+        const categoryId = this.getAttribute('data-category');
+        
+        // Mettre à jour les sous-catégories
+        updateSubcategoryFilters(categoryId);
+        
+        // Filtrer les services
+        filterServices(categoryId, 'all');
+        
+        // Ajouter une animation au filtre
+        this.classList.add('filter-animation');
+        setTimeout(() => {
+          this.classList.remove('filter-animation');
+        }, 500);
+      });
+    });
+    
+    // Fonction pour mettre à jour les filtres de sous-catégories
+    function updateSubcategoryFilters(categoryId) {
+      // Vider le conteneur de sous-catégories
+      subcategoryFiltersContainer.innerHTML = '';
+      
+      // Si "Tous les services" est sélectionné, ne pas afficher de sous-catégories
+      if (categoryId === 'all') {
+        subcategoryFiltersContainer.classList.add('hidden');
+        return;
+      }
+      
+      // Afficher le conteneur de sous-catégories
+      subcategoryFiltersContainer.classList.remove('hidden');
+      
+      // Ajouter le filtre "Tous"
+      const allFilter = document.createElement('button');
+      allFilter.className = 'subcategory-filter active px-3 py-1 rounded-full bg-gray-100 text-xs font-medium hover:bg-gray-200 transition-colors';
+      allFilter.setAttribute('data-subcategory', 'all');
+      allFilter.textContent = 'Tous';
+      allFilter.addEventListener('click', function() {
+        // Supprimer la classe active de tous les filtres de sous-catégories
+        document.querySelectorAll('.subcategory-filter').forEach(f => f.classList.remove('active'));
+        
+        // Ajouter la classe active à ce filtre
+        this.classList.add('active');
+        
+        // Filtrer les services
+        filterServices(categoryId, 'all');
+      });
+      subcategoryFiltersContainer.appendChild(allFilter);
+      
+      // Ajouter les filtres de sous-catégories
+      const subcategories = categories.filter(cat => cat.parent_id === parseInt(categoryId));
+      subcategories.forEach(subcat => {
+        const subcatFilter = document.createElement('button');
+        subcatFilter.className = 'subcategory-filter px-3 py-1 rounded-full bg-gray-100 text-xs font-medium hover:bg-gray-200 transition-colors';
+        subcatFilter.setAttribute('data-subcategory', subcat.id);
+        subcatFilter.textContent = subcat.name;
+        subcatFilter.addEventListener('click', function() {
+          // Supprimer la classe active de tous les filtres de sous-catégories
+          document.querySelectorAll('.subcategory-filter').forEach(f => f.classList.remove('active'));
+          
+          // Ajouter la classe active à ce filtre
+          this.classList.add('active');
+          
+          // Filtrer les services
+          filterServices(categoryId, subcat.id);
+        });
+        subcategoryFiltersContainer.appendChild(subcatFilter);
+      });
+    }
+    
+    // Fonction pour filtrer les services
+    function filterServices(categoryId, subcategoryId) {
+      const servicesGrid = document.getElementById('services-grid');
+      const serviceCards = document.querySelectorAll('.service-card');
+      let visibleCount = 0;
+      
+      serviceCards.forEach(card => {
+        const cardCategoryId = card.getAttribute('data-category');
+        const cardSubcategoryId = card.getAttribute('data-subcategory');
+        
+        // Déterminer si la carte doit être visible
+        let isVisible = false;
+        
+        if (categoryId === 'all') {
+          isVisible = true;
+        } else if (subcategoryId === 'all') {
+          isVisible = cardCategoryId === categoryId;
+        } else {
+          isVisible = cardSubcategoryId === subcategoryId;
+        }
+        
+        // Afficher ou masquer la carte
+        if (isVisible) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      // Afficher le message "Aucun résultat" si nécessaire
+      const noResults = document.querySelector('.no-results');
+      if (visibleCount === 0) {
+        noResults.classList.add('show');
+      } else {
+        noResults.classList.remove('show');
+      }
+      
+      // Réinitialiser la pagination
+      updatePagination(1);
+    }
+  }
+  
+  // Fonction pour initialiser la grille de services
+  function initServicesGrid() {
+    const servicesGrid = document.getElementById('services-grid');
+    
+    // Vider la grille
+    servicesGrid.innerHTML = '';
+    
+    // Ajouter le message "Aucun résultat"
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results col-span-full';
+    noResults.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">Aucun service trouvé</h3>
+        <p class="text-gray-500">Essayez de modifier vos critères de recherche</p>
+      </div>
+    `;
+    servicesGrid.appendChild(noResults);
+    
+    // Ajouter les cartes de services
+    services.forEach(service => {
+      const category = categories.find(cat => cat.id === service.category_id);
+      const parentCategory = categories.find(cat => cat.id === service.parent_category_id);
+      
+      const serviceCard = document.createElement('div');
+      serviceCard.className = 'service-card bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all';
+      serviceCard.setAttribute('data-category', parentCategory.id);
+      serviceCard.setAttribute('data-subcategory', category.id);
+      serviceCard.setAttribute('data-name', service.name.toLowerCase());
+      serviceCard.setAttribute('data-location', service.location.toLowerCase());
+      
+      serviceCard.innerHTML = `
+        <div class="relative h-48 overflow-hidden">
+          <img src="${service.image}" alt="${service.name}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+          <div class="absolute top-2 right-2 bg-white rounded-full px-2 py-1 text-xs font-medium text-primary-600 shadow-sm">
+            <i class="fas fa-star text-yellow-400 mr-1"></i> ${service.rating} (${service.reviews})
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <span class="text-xs text-white bg-primary-600 rounded-full px-2 py-1">${category.name}</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="text-lg font-bold mb-2">${service.name}</h3>
+          <p class="text-gray-600 text-sm mb-3">${service.description}</p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center text-gray-500 text-sm">
+              <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i> ${service.location}
+            </div>
+            <div class="text-primary-600 font-semibold">${service.price}€</div>
+          </div>
+          <button class="mt-4 w-full bg-primary-600 hover:bg-primary-700 text-white rounded-md py-2 text-sm font-medium transition-colors ripple">
+            Réserver maintenant
+          </button>
+        </div>
+      `;
+      
+      servicesGrid.appendChild(serviceCard);
+    });
+    
+    // Initialiser la pagination
+    initPagination();
+  }
+  
+  // Fonction pour initialiser la recherche
+  function initSearch() {
+    const searchInput = document.getElementById('search-input');
+    const locationInput = document.getElementById('location-input');
+    const sectorSelect = document.getElementById('sector-select');
+    const searchButton = document.getElementById('search-button');
+    
+    // Fonction de recherche
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const locationTerm = locationInput.value.toLowerCase();
+      const sectorTerm = sectorSelect.value;
+      
+      const serviceCards = document.querySelectorAll('.service-card');
+      let visibleCount = 0;
+      
+      serviceCards.forEach(card => {
+        const cardName = card.getAttribute('data-name');
+        const cardLocation = card.getAttribute('data-location');
+        const cardCategory = card.getAttribute('data-category');
+        
+        // Déterminer si la carte correspond aux critères de recherche
+        let matchesSearch = true;
+        
+        if (searchTerm && !cardName.includes(searchTerm)) {
+          matchesSearch = false;
+        }
+        
+        if (locationTerm && !cardLocation.includes(locationTerm)) {
+          matchesSearch = false;
+        }
+        
+        if (sectorTerm !== 'all' && cardCategory !== sectorTerm) {
+          matchesSearch = false;
+        }
+        
+        // Afficher ou masquer la carte
+        if (matchesSearch) {
+          card.classList.remove('hidden');
+          visibleCount++;
+          
+          // Mettre en surbrillance les termes de recherche
+          if (searchTerm) {
+            const nameElement = card.querySelector('h3');
+            const originalName = nameElement.textContent;
+            const highlightedName = originalName.replace(
+              new RegExp(searchTerm, 'gi'),
+              match => `<span class="search-highlight">${match}</span>`
+            );
+            nameElement.innerHTML = highlightedName;
+          }
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      // Afficher le message "Aucun résultat" si nécessaire
+      const noResults = document.querySelector('.no-results');
+      if (visibleCount === 0) {
+        noResults.classList.add('show');
+      } else {
+        noResults.classList.remove('show');
+      }
+      
+      // Réinitialiser la pagination
+      updatePagination(1);
+      
+      // Réinitialiser les filtres de catégories
+      document.querySelectorAll('.category-filter').forEach(filter => {
+        filter.classList.remove('active');
+        if (filter.getAttribute('data-category') === 'all') {
+          filter.classList.add('active');
+        }
+      });
+      
+      // Masquer les filtres de sous-catégories
+      document.getElementById('subcategory-filters').innerHTML = '';
+    }
+    
+    // Ajouter les écouteurs d'événements
+    searchButton.addEventListener('click', performSearch);
+    
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+    
+    locationInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+    
+    sectorSelect.addEventListener('change', performSearch);
+  }
+  
+  // Fonction pour initialiser la pagination
+  function initPagination() {
+    const servicesPerPage = 8;
+    const serviceCards = document.querySelectorAll('.service-card');
+    const totalPages = Math.ceil(serviceCards.length / servicesPerPage);
+    
+    // Initialiser les boutons de pagination
+    const paginationNumbers = document.getElementById('pagination-numbers');
+    paginationNumbers.innerHTML = '';
+    
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement('button');
+      pageButton.className = `w-10 h-10 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 ${i === 1 ? 'bg-primary-600 text-white' : ''}`;
+      pageButton.textContent = i;
+      pageButton.addEventListener('click', function() {
+        updatePagination(i);
+      });
+      paginationNumbers.appendChild(pageButton);
+    }
+    
+    // Initialiser les boutons précédent/suivant
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    
+    prevButton.addEventListener('click', function() {
+      const activePage = document.querySelector('#pagination-numbers button.bg-primary-600');
+      const currentPage = parseInt(activePage.textContent);
+      if (currentPage > 1) {
+        updatePagination(currentPage - 1);
+      }
+    });
+    
+    nextButton.addEventListener('click', function() {
+      const activePage = document.querySelector('#pagination-numbers button.bg-primary-600');
+      const currentPage = parseInt(activePage.textContent);
+      if (currentPage < totalPages) {
+        updatePagination(currentPage + 1);
+      }
+    });
+    
+    // Afficher la première page
+    updatePagination(1);
+  }
+  
+  // Fonction pour mettre à jour la pagination
+  function updatePagination(page) {
+    const servicesPerPage = 8;
+    const serviceCards = document.querySelectorAll('.service-card:not(.hidden)');
+    const totalPages = Math.ceil(serviceCards.length / servicesPerPage);
+    
+    // Mettre à jour les boutons de pagination
+    const paginationButtons = document.querySelectorAll('#pagination-numbers button');
+    paginationButtons.forEach((button, index) => {
+      if (index + 1 === page) {
+        button.classList.add('bg-primary-600', 'text-white');
+      } else {
+        button.classList.remove('bg-primary-600', 'text-white');
+      }
+    });
+    
+    // Mettre à jour les boutons précédent/suivant
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    
+    prevButton.disabled = page === 1;
+    nextButton.disabled = page === totalPages || totalPages === 0;
+    
+    // Afficher les services de la page actuelle
+    serviceCards.forEach((card, index) => {
+      const startIndex = (page - 1) * servicesPerPage;
+      const endIndex = startIndex + servicesPerPage - 1;
+      
+      if (index >= startIndex && index <= endIndex) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+  
+  // Counter animation
+  const counters = document.querySelectorAll('.counter-value');
+  const options = {
+    threshold: 0.5
+  };
+  
+  const observer = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target;
+        const target = parseInt(counter.getAttribute('data-target'));
+        let count = 0;
+        const speed = Math.floor(2000 / target);
+        
+        const updateCount = () => {
+          const increment = target / 100;
+          if (count < target) {
+            count += increment;
+            counter.innerText = Math.ceil(count).toLocaleString();
+            setTimeout(updateCount, speed);
+          } else {
+            counter.innerText = target.toLocaleString();
+          }
+        };
+        
+        updateCount();
+        observer.unobserve(counter);
+      }
+    });
+  }, options);
+  
+  counters.forEach(counter => {
+    observer.observe(counter);
+  });
+  
+  // Tilt effect for hero image
+  const heroImageContainer = document.getElementById('hero-image-container');
+  if (heroImageContainer) {
+    heroImageContainer.addEventListener('mousemove', function(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const xPercent = x / rect.width;
+      const yPercent = y / rect.height;
+      
+      const rotateX = (0.5 - yPercent) * 10;
+      const rotateY = (xPercent - 0.5) * 10;
+      
+      this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    
+    heroImageContainer.addEventListener('mouseleave', function() {
+      this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const homeServicesList = document.getElementById('home-services-list');
+    const homeServicesLoader = document.getElementById('home-services-loader');
+    const homeServicesPagination = document.getElementById('home-services-pagination');
+    const categoryButtons = document.querySelectorAll('.category-filter');
+
+    function fetchHomeServices(url = null, extraParams = {}) {
+        homeServicesLoader.classList.remove('hidden');
+        homeServicesList.innerHTML = '';
+        let params = new URLSearchParams();
+        let activeCat = document.querySelector('.category-filter.active');
+        if (activeCat && activeCat.dataset.category && activeCat.dataset.category !== 'all') {
+            params.append('category', activeCat.dataset.category);
+        }
+        for (const [key, value] of Object.entries(extraParams)) {
+            params.append(key, value);
+        }
+        let fetchUrl = url || `/home/services/ajax?${params.toString()}`;
+        fetch(fetchUrl, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(res => res.json())
+            .then(data => {
+                homeServicesList.innerHTML = data.html;
+                homeServicesPagination.innerHTML = data.pagination;
+            })
+            .catch(() => {
+                homeServicesList.innerHTML = `<div class='col-span-3 text-center text-red-500 py-6'>Erreur lors du chargement des services.</div>`;
+                homeServicesPagination.innerHTML = '';
+            })
+            .finally(() => {
+                homeServicesLoader.classList.add('hidden');
+            });
+    }
+    categoryButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            categoryButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            fetchHomeServices();
+        });
+    });
+    homeServicesPagination.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A' && e.target.href) {
+            e.preventDefault();
+            fetchHomeServices(e.target.href);
+        }
+    });
   });
 </script>
 </body>
 </html>
-

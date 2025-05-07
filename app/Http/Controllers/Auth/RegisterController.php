@@ -27,7 +27,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $roleId = 3; // Default to Client
+        $roleId = 3; 
         if ($request->role === 'ServiceProvider') {
             $roleId = 2;
         }
