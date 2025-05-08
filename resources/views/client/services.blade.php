@@ -388,13 +388,13 @@
                         <!-- Services Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="services-list">
                             @include('client.partials.services_list', ['services' => $services])
-                        </div>
+                                        </div>
                         <div id="services-loader" class="w-full flex justify-center py-6 hidden">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                         </div>
                         <div id="services-pagination" class="flex justify-center mt-12" data-aos="fade-up">
-                            @if($services->hasPages())
-                                {{ $services->links() }}
+                        @if($services->hasPages())
+                            {{ $services->links() }}
                             @endif
                         </div>
                     </div>

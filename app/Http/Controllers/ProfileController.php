@@ -12,12 +12,9 @@ class ProfileController extends Controller
     public function showSetupForm()
     {
         $provider = Auth::user();
-        
-        // Si le profil est déjà complété, rediriger vers le dashboard
         if ($provider->is_profile_completed) {
             return redirect()->route('provider.dashboard');
         }
-        
         return view('provider.profile.setup', compact('provider'));
     }
 
@@ -29,21 +26,16 @@ class ProfileController extends Controller
             'business_type' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
         ]);
-
         $provider = Auth::user();
-        
-        // Gérer l'upload de la photo
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('provider-photos', 'public');
             $provider->photo = $path;
         }
-        
         $provider->address = $request->address;
         $provider->business_type = $request->business_type;
         $provider->capacity = $request->capacity;
         $provider->is_profile_completed = true;
         $provider->save();
-
         return redirect()->route('provider.dashboard')
             ->with('success', 'Votre profil a été mis à jour avec succès.');
     }

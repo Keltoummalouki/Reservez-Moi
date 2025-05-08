@@ -294,14 +294,14 @@
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4 mt-6">
-                            <button type="button" class="flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors">
+                            <a href="{{ route('socialite.redirect', 'google') }}" class="flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors">
                                 <i class="fab fa-google text-red-500"></i>
                                 <span class="text-sm font-medium">Google</span>
-                            </button>
-                            <button type="button" class="flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors">
+                            </a>
+                            <a href="{{ route('socialite.redirect', 'facebook') }}" class="flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition-colors">
                                 <i class="fab fa-facebook-f text-blue-600"></i>
                                 <span class="text-sm font-medium">Facebook</span>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

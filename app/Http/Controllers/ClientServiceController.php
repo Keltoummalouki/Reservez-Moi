@@ -36,12 +36,9 @@ class ClientServiceController extends Controller
         }
 
         $services = $query->paginate(9)->appends($request->query());
-
-        // Get categories that have available services
         $categories = Category::whereHas('services', function($query) {
             $query->where('is_available', true);
         })->get();
-
         return view('client.services', compact('services', 'categories'));
     }
 
@@ -66,7 +63,6 @@ class ClientServiceController extends Controller
         if ($request->filled('max_price')) {
             $query->where('price', '<=', $request->max_price);
         }
-        // Tri
         if ($request->filled('sort')) {
             switch ($request->sort) {
                 case 'price-low':

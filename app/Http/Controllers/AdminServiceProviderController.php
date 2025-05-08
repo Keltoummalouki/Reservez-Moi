@@ -116,7 +116,6 @@ class AdminServiceProviderController extends Controller
             'address' => $request->address,
         ];
 
-        // Mettre à jour le mot de passe uniquement s'il est fourni
         if ($request->filled('password')) {
             $request->validate([
                 'password' => 'string|min:8|confirmed',
@@ -131,16 +130,13 @@ class AdminServiceProviderController extends Controller
 
     public function destroy(User $user)
     {
-        // Supprimer les services associés
         $user->services()->delete();
         
-        // Supprimer l'utilisateur
         $user->delete();
 
         return redirect()->route('admin.service_providers')->with('success', 'Prestataire supprimé avec succès !');
     }
 
-    // Suspendre un service provider
     public function suspend(User $provider)
     {
         $provider->is_active = false;
@@ -148,7 +144,6 @@ class AdminServiceProviderController extends Controller
         return redirect()->route('admin.service_providers')->with('success', 'Prestataire suspendu avec succès !');
     }
 
-    // Réactiver un service provider
     public function resume(User $provider)
     {
         $provider->is_active = true;

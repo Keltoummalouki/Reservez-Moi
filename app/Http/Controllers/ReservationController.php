@@ -31,15 +31,12 @@ class ReservationController extends Controller
      */
     public function showForm($serviceId)
     {
-        // Récupérer le service et vérifier qu'il est disponible
         $service = Service::where('is_available', true)->findOrFail($serviceId);
         
-        // Récupérer les dates disponibles pour les 30 prochains jours
         $startDate = Carbon::now();
         $endDate = Carbon::now()->addDays(30);
         $availableDates = [];
         
-        // Pour chaque jour, vérifier s'il y a des créneaux disponibles
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dateString = $date->format('Y-m-d');
             $slots = [];
@@ -70,13 +67,10 @@ class ReservationController extends Controller
             'date' => 'required|date|after_or_equal:today',
         ]);
         
-        // Récupérer le service
         $service = Service::findOrFail($serviceId);
         
-        // Obtenir les créneaux disponibles
         $slots = [];
         
-        // Formatter les créneaux pour l'affichage
         $formattedSlots = [];
         foreach ($slots as $slot) {
             $startTime = Carbon::parse($slot['start_time'])->format('H:i');
@@ -107,7 +101,6 @@ class ReservationController extends Controller
     public function reserve(Request $request, $serviceId)
     {
         $request->validate([
-            // 'reservation_datetime' => 'nullable|date',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -131,18 +124,15 @@ class ReservationController extends Controller
      */
     public function cancel(Reservation $reservation)
     {
-        // Vérifier que l'utilisateur est bien le propriétaire de la réservation
         if ($reservation->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Vérifier si la réservation peut être annulée
         if (!$reservation->canBeCancelled()) {
             return redirect()->route('client.reservations')
                 ->with('error', 'Cette réservation ne peut pas être annulée.');
         }
 
-        // Annuler la réservation
         $reservation->markAsCancelled('Annulée par le client');
 
         return redirect()->route('client.reservations')
@@ -157,18 +147,15 @@ class ReservationController extends Controller
      */
     public function paypal(Reservation $reservation)
     {
-        // Vérifier que l'utilisateur est bien le propriétaire de la réservation
         if ($reservation->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Vérifier si la réservation est en attente de paiement
         if (!$reservation->isPendingPayment()) {
             return redirect()->route('client.reservations')
                 ->with('error', 'Cette réservation ne nécessite pas de paiement.');
         }
 
-        // Initialiser le paiement PayPal
         return app(PayPalController::class)->createPayment(new Request([
             'reservation_id' => $reservation->id,
             'amount' => $reservation->amount

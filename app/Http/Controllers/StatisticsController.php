@@ -10,22 +10,16 @@ class StatisticsController extends Controller
     public function index()
     {
         $provider = Auth::user();
-
-        // Statistiques principales
         $totalReservations = $provider->reservations()->count();
         $totalRevenue = $provider->reservations()->where('status', 'completed')->sum('amount');
         $averageRating = $provider->reviews()->avg('rating') ?? 0;
         $activeServices = $provider->services()->where('is_active', true)->count();
-
-        // Réservations par mois (array: ['2024-01' => 5, ...])
         $reservationsByMonth = $provider->reservations()
             ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('count', 'month')
             ->toArray();
-
-        // Revenu par mois (array: ['2024-01' => 120, ...])
         $revenueByMonth = $provider->reservations()
             ->where('status', 'completed')
             ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
@@ -33,17 +27,12 @@ class StatisticsController extends Controller
             ->orderBy('month')
             ->pluck('total', 'month')
             ->toArray();
-
-        // Top services (5 plus réservés)
         $topServices = $provider->services()
             ->withCount('reservations')
             ->orderByDesc('reservations_count')
             ->take(5)
             ->get();
-
-        // Activité récente
         $recentActivity = $this->getRecentActivity($provider);
-
         return view('provider.statistics', compact(
             'totalReservations',
             'totalRevenue',
@@ -59,14 +48,11 @@ class StatisticsController extends Controller
     private function getRecentActivity($provider)
     {
         $activities = [];
-
-        // Dernières réservations
         $recentReservations = $provider->reservations()
             ->with('user')
             ->latest()
             ->take(5)
             ->get();
-
         foreach ($recentReservations as $reservation) {
             $activities[] = [
                 'icon' => 'calendar-check',
@@ -76,14 +62,11 @@ class StatisticsController extends Controller
                 'time' => $reservation->created_at->diffForHumans()
             ];
         }
-
-        // Derniers avis
         $recentReviews = $provider->reviews()
             ->with('user')
             ->latest()
             ->take(5)
             ->get();
-
         foreach ($recentReviews as $review) {
             $activities[] = [
                 'icon' => 'star',
@@ -93,12 +76,9 @@ class StatisticsController extends Controller
                 'time' => $review->created_at->diffForHumans()
             ];
         }
-
-        // Trier les activités par date (plus récentes d'abord)
         usort($activities, function($a, $b) {
             return strtotime($b['time']) - strtotime($a['time']);
         });
-
         return array_slice($activities, 0, 5);
     }
 
@@ -107,15 +87,11 @@ class StatisticsController extends Controller
         $provider = Auth::user();
         $period = (int) $request->get('period', 30);
         $startDate = now()->subDays($period);
-
-        // Statistiques principales sur la période
         $reservations = $provider->reservations()->where('created_at', '>=', $startDate);
         $totalReservations = $reservations->count();
         $totalRevenue = $reservations->where('status', 'completed')->sum('amount');
         $newClients = $reservations->distinct('user_id')->count('user_id');
-        $conversionRate = 0; // À calculer si pertinent
-
-        // Croissance (par rapport à la période précédente)
+        $conversionRate = 0;
         $previousStart = now()->subDays($period * 2);
         $previousEnd = now()->subDays($period);
         $prevReservations = $provider->reservations()->whereBetween('created_at', [$previousStart, $previousEnd]);
@@ -123,10 +99,8 @@ class StatisticsController extends Controller
         $prevTotalRevenue = $prevReservations->where('status', 'completed')->sum('amount');
         $reservationsGrowth = $prevTotalReservations > 0 ? round((($totalReservations - $prevTotalReservations) / $prevTotalReservations) * 100) : 0;
         $revenueGrowth = $prevTotalRevenue > 0 ? round((($totalRevenue - $prevTotalRevenue) / $prevTotalRevenue) * 100) : 0;
-        $clientsGrowth = 0; // À calculer si pertinent
-        $conversionRateChange = 0; // À calculer si pertinent
-
-        // Top services
+        $clientsGrowth = 0;
+        $conversionRateChange = 0;
         $topServices = $provider->services()
             ->withCount(['reservations' => function($q) use ($startDate) {
                 $q->where('created_at', '>=', $startDate);
@@ -142,8 +116,6 @@ class StatisticsController extends Controller
                     'revenue' => $revenue,
                 ];
             });
-
-        // Catégories populaires
         $categories = $provider->services()->with('category')->get()->groupBy('category.name');
         $popularCategories = collect();
         $totalCatReservations = $reservations->count();
@@ -157,7 +129,6 @@ class StatisticsController extends Controller
                 'percentage' => $totalCatReservations > 0 ? round(($count / $totalCatReservations) * 100) : 0
             ]);
         }
-
         return response()->json([
             'totalReservations' => $totalReservations,
             'totalRevenue' => $totalRevenue,

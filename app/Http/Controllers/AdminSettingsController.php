@@ -15,9 +15,7 @@ class AdminSettingsController extends Controller
 
     public function index()
     {
-        // Récupérer tous les paramètres
         $settings = Setting::all()->keyBy('key');
-        
         return view('admin.settings', compact('settings'));
     }
 
@@ -30,17 +28,12 @@ class AdminSettingsController extends Controller
             'timezone' => 'required|string',
             'date_format' => 'required|string',
         ]);
-
-        // Mettre à jour ou créer les paramètres
         $this->updateOrCreateSetting('site_name', $request->site_name);
         $this->updateOrCreateSetting('site_email', $request->site_email);
         $this->updateOrCreateSetting('site_description', $request->site_description);
         $this->updateOrCreateSetting('timezone', $request->timezone);
         $this->updateOrCreateSetting('date_format', $request->date_format);
-
-        // Vider le cache des paramètres
         Cache::forget('settings');
-
         return redirect()->route('admin.settings')->with('success', 'Paramètres généraux mis à jour avec succès !');
     }
 
@@ -50,8 +43,6 @@ class AdminSettingsController extends Controller
             'password_min_length' => 'required|integer|min:6|max:30',
             'login_attempts_limit' => 'required|integer|min:1|max:10',
         ]);
-
-        // Mettre à jour les paramètres de sécurité
         $this->updateOrCreateSetting('password_min_length_enabled', $request->has('password_min_length_enabled') ? 1 : 0);
         $this->updateOrCreateSetting('password_min_length', $request->password_min_length);
         $this->updateOrCreateSetting('password_require_special', $request->has('password_require_special') ? 1 : 0);
@@ -59,10 +50,7 @@ class AdminSettingsController extends Controller
         $this->updateOrCreateSetting('login_attempts_limit_enabled', $request->has('login_attempts_limit_enabled') ? 1 : 0);
         $this->updateOrCreateSetting('login_attempts_limit', $request->login_attempts_limit);
         $this->updateOrCreateSetting('enable_recaptcha', $request->has('enable_recaptcha') ? 1 : 0);
-
-        // Vider le cache des paramètres
         Cache::forget('settings');
-
         return redirect()->route('admin.settings')->with('success', 'Paramètres de sécurité mis à jour avec succès !');
     }
 
@@ -74,18 +62,13 @@ class AdminSettingsController extends Controller
             'paypal_secret' => 'nullable|string',
             'paypal_mode' => 'required|in:sandbox,live',
         ]);
-
-        // Mettre à jour les paramètres de paiement
         $this->updateOrCreateSetting('enable_paypal', $request->has('enable_paypal') ? 1 : 0);
         $this->updateOrCreateSetting('enable_stripe', $request->has('enable_stripe') ? 1 : 0);
         $this->updateOrCreateSetting('platform_fee', $request->platform_fee);
         $this->updateOrCreateSetting('paypal_client_id', $request->paypal_client_id);
         $this->updateOrCreateSetting('paypal_secret', $request->paypal_secret);
         $this->updateOrCreateSetting('paypal_mode', $request->paypal_mode);
-
-        // Vider le cache des paramètres
         Cache::forget('settings');
-
         return redirect()->route('admin.settings')->with('success', 'Paramètres de paiement mis à jour avec succès !');
     }
 
@@ -100,24 +83,16 @@ class AdminSettingsController extends Controller
             'mail_from_address' => 'required|email',
             'mail_from_name' => 'required|string',
         ]);
-
-        // Mettre à jour les paramètres d'email
         $this->updateOrCreateSetting('mail_host', $request->mail_host);
         $this->updateOrCreateSetting('mail_port', $request->mail_port);
         $this->updateOrCreateSetting('mail_username', $request->mail_username);
-        
-        // Ne mettre à jour le mot de passe que s'il est fourni
         if ($request->filled('mail_password')) {
             $this->updateOrCreateSetting('mail_password', $request->mail_password);
         }
-        
         $this->updateOrCreateSetting('mail_encryption', $request->mail_encryption);
         $this->updateOrCreateSetting('mail_from_address', $request->mail_from_address);
         $this->updateOrCreateSetting('mail_from_name', $request->mail_from_name);
-
-        // Vider le cache des paramètres
         Cache::forget('settings');
-
         return redirect()->route('admin.settings')->with('success', 'Paramètres d\'emails mis à jour avec succès !');
     }
 

@@ -18,9 +18,9 @@ class Reservation extends Model
         'amount',
         'payment_status',
         'paypal_transaction_id',
-        'paypal_order_id',    // Ajouté pour stocker l'ID de l'ordre PayPal
-        'cancelled_at',       // Ajouté pour suivre quand une réservation a été annulée
-        'cancelled_reason',   // Ajouté pour stocker la raison d'annulation
+        'paypal_order_id',
+        'cancelled_at',
+        'cancelled_reason',
     ];
 
     protected $casts = [
@@ -119,13 +119,11 @@ class Reservation extends Model
         if (!$this->canBeCancelled()) {
             return false;
         }
-
         $this->update([
             'status' => self::STATUS_CANCELLED,
             'cancelled_at' => now(),
             'cancelled_reason' => $reason,
         ]);
-
         return true;
     }
 
@@ -139,11 +137,9 @@ class Reservation extends Model
         if (!$this->canBeConfirmed()) {
             return false;
         }
-
         $this->update([
             'status' => self::STATUS_CONFIRMED,
         ]);
-
         return true;
     }
 
@@ -158,22 +154,16 @@ class Reservation extends Model
         if ($this->payment_status === self::PAYMENT_COMPLETED) {
             return false;
         }
-
         $data = [
             'payment_status' => self::PAYMENT_COMPLETED,
         ];
-
         if ($transactionId) {
             $data['paypal_transaction_id'] = $transactionId;
         }
-
-        // Si le statut est en attente, le passer à confirmé automatiquement
         if ($this->status === self::STATUS_PENDING) {
             $data['status'] = self::STATUS_CONFIRMED;
         }
-
         $this->update($data);
-
         return true;
     }
 

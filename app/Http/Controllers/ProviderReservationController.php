@@ -23,7 +23,6 @@ class ProviderReservationController extends Controller
             ->with('service', 'user')
             ->latest()
             ->paginate(10);
-
         return view('provider.reservations', compact('reservations'));
     }
 
@@ -32,20 +31,11 @@ class ProviderReservationController extends Controller
         if ($reservation->service->provider_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
-
         if ($reservation->status !== 'pending') {
             return redirect()->route('provider.reservations')->with('error', 'Cette réservation ne peut pas être confirmée.');
         }
-
         $reservation->update(['status' => 'confirmed']);
-        
-        // Envoyer une notification au client
-        try {
-            $reservation->user->notify(new ReservationConfirmed($reservation));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send confirmation notification: ' . $e->getMessage());
-        }
-
+        $reservation->user->notify(new ReservationConfirmed($reservation));
         return redirect()->route('provider.reservations')->with('success', 'Réservation confirmée avec succès !');
     }
 
@@ -54,20 +44,11 @@ class ProviderReservationController extends Controller
         if ($reservation->service->provider_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
-
         if (!in_array($reservation->status, ['pending', 'confirmed'])) {
             return redirect()->route('provider.reservations')->with('error', 'Cette réservation ne peut pas être annulée.');
         }
-
         $reservation->update(['status' => 'cancelled']);
-        
-        // Envoyer une notification au client
-        try {
-            $reservation->user->notify(new ReservationCancelled($reservation, 'provider'));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send cancellation notification: ' . $e->getMessage());
-        }
-
+        $reservation->user->notify(new ReservationCancelled($reservation, 'provider'));
         return redirect()->route('provider.reservations')->with('success', 'Réservation annulée avec succès !');
     }
 
@@ -79,11 +60,9 @@ class ProviderReservationController extends Controller
                 $query->where('provider_id', Auth::id());
             })
             ->first();
-
         if (!$reservation) {
             return response()->json(['success' => false, 'message' => 'Réservation introuvable.']);
         }
-
         return response()->json([
             'success' => true,
             'reservation' => $reservation

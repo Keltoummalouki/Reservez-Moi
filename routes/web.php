@@ -32,6 +32,7 @@ use App\Http\Controllers\SettingsController as ProviderSettingsController;
 use App\Http\Controllers\ServiceController as AdminServiceController;
 use App\Http\Controllers\ProviderSettingController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\SocialiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -296,3 +297,6 @@ Route::get('/provider/suspended', function () {
 Route::get('/suspended', function () {
     return view('auth.suspended');
 })->name('suspended');
+
+Route::get('auth/{provider}', [SocialiteController::class, 'redirect'])->name('socialite.redirect');
+Route::get('auth/{provider}/callback', [SocialiteController::class, 'callback'])->name('socialite.callback');

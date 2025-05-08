@@ -27,7 +27,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $roleId = 3; 
+        $roleId = 3;
         if ($request->role === 'ServiceProvider') {
             $roleId = 2;
         }
@@ -35,7 +35,7 @@ class RegisterController extends Controller
 
         if (!$role) {
             $user->delete();
-            return redirect()->back()->withErrors(['role' => 'Le rôle sélectionné n\'existe pas. Veuillez contacter l\'administrateur.']);
+            return redirect()->back()->withErrors(['role' => "Le rôle sélectionné n'existe pas. Veuillez contacter l'administrateur."]);
         }
 
         $user->roles()->attach($role);
@@ -60,7 +60,7 @@ class RegisterController extends Controller
         $role = $user->roles->first();
 
         if (!$role) {
-            \Auth::logout();
+            Auth::logout();
             return redirect('/login')->withErrors('Erreur : aucun rôle attribué à cet utilisateur.');
         }
 
@@ -74,9 +74,9 @@ class RegisterController extends Controller
             case 'ServiceProvider':
                 return redirect()->route('provider.dashboard');
             case 'Client':
-        return redirect()->route('client.services');
+                return redirect()->route('client.services');
             default:
-                \Auth::logout();
+                Auth::logout();
                 return redirect('/login')->withErrors('Erreur : rôle utilisateur inconnu.');
         }
     }

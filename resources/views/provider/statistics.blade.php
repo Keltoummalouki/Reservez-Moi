@@ -182,11 +182,11 @@
                     
                     <div class="flex items-center space-x-4">
                         <button id="export-btn" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-file-export mr-2"></i> Exporter
-                        </button>
+                                <i class="fas fa-file-export mr-2"></i> Exporter
+                            </button>
                     </div>
-                </div>
-            </div>
+                            </div>
+                                        </div>
             
             <!-- Loader -->
             <div id="stats-loader" class="flex justify-center items-center py-6" style="display:none;">
@@ -463,7 +463,7 @@
                     updatePeriodLabel();
                 });
             }
-
+            
             // Charts instances (pour update)
             let reservationsChart = null;
             let categoriesChart = null;
@@ -471,138 +471,138 @@
 
             // Initialisation des charts (si besoin)
             function initCharts() {
-                const reservationsCtx = document.getElementById('reservationsChart');
-                if (reservationsCtx) {
+            const reservationsCtx = document.getElementById('reservationsChart');
+            if (reservationsCtx) {
                     reservationsChart = new Chart(reservationsCtx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
-                            datasets: [
-                                {
-                                    label: 'Réservations',
+                type: 'line',
+                data: {
+                        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                        datasets: [
+                            {
+                                label: 'Réservations',
                                     data: [0,0,0,0,0,0,0,0,0,0,0,0],
-                                    borderColor: 'rgb(59, 130, 246)',
-                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                    tension: 0.3,
-                                    fill: true,
-                                    yAxisID: 'y'
-                                },
-                                {
-                                    label: 'Revenus (€)',
-                                    data: [0,0,0,0,0,0,0,0,0,0,0,0],
-                                    borderColor: 'rgb(16, 185, 129)',
-                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                    tension: 0.3,
-                                    fill: true,
-                                    yAxisID: 'y1'
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false,
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                yAxisID: 'y'
                             },
-                            scales: {
-                                y: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'left',
-                                    title: {
-                                        display: true,
-                                        text: 'Réservations'
-                                    }
-                                },
-                                y1: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'right',
-                                    grid: {
-                                        drawOnChartArea: false,
-                                    },
-                                    title: {
-                                        display: true,
-                                        text: 'Revenus (€)'
-                                    }
-                                }
+                            {
+                                label: 'Revenus (€)',
+                                    data: [0,0,0,0,0,0,0,0,0,0,0,0],
+                                borderColor: 'rgb(16, 185, 129)',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                yAxisID: 'y1'
                             }
-                        }
-                    });
-                }
-                const categoriesCtx = document.getElementById('categoriesChart');
-                if (categoriesCtx) {
-                    categoriesChart = new Chart(categoriesCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                data: [],
-                                backgroundColor: [
-                                    'rgba(59, 130, 246, 0.8)',
-                                    'rgba(16, 185, 129, 0.8)',
-                                    'rgba(245, 158, 11, 0.8)',
-                                    'rgba(239, 68, 68, 0.8)',
-                                    'rgba(139, 92, 246, 0.8)'
-                                ],
-                                borderWidth: 1
-                            }]
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Réservations'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Revenus (€)'
                                 }
                             }
                         }
-                    });
-                }
-                const funnelCtx = document.getElementById('funnelChart');
-                if (funnelCtx) {
+                    }
+                });
+            }
+            const categoriesCtx = document.getElementById('categoriesChart');
+            if (categoriesCtx) {
+                    categoriesChart = new Chart(categoriesCtx, {
+                    type: 'doughnut',
+                    data: {
+                            labels: [],
+                    datasets: [{
+                                data: [],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(139, 92, 246, 0.8)'
+                            ],
+                            borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+            const funnelCtx = document.getElementById('funnelChart');
+            if (funnelCtx) {
                     funnelChart = new Chart(funnelCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Visites', 'Recherches', 'Vues de services', 'Tentatives de réservation', 'Réservations complétées'],
-                            datasets: [{
+                type: 'bar',
+                data: {
+                        labels: ['Visites', 'Recherches', 'Vues de services', 'Tentatives de réservation', 'Réservations complétées'],
+                    datasets: [{
                                 label: "Nombre d'utilisateurs",
                                 data: [0,0,0,0,0],
-                                backgroundColor: [
-                                    'rgba(59, 130, 246, 0.8)',
-                                    'rgba(59, 130, 246, 0.7)',
-                                    'rgba(59, 130, 246, 0.6)',
-                                    'rgba(59, 130, 246, 0.5)',
-                                    'rgba(59, 130, 246, 0.4)'
-                                ],
-                                borderColor: [
-                                    'rgb(59, 130, 246)',
-                                    'rgb(59, 130, 246)',
-                                    'rgb(59, 130, 246)',
-                                    'rgb(59, 130, 246)',
-                                    'rgb(59, 130, 246)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'y',
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    beginAtZero: true
-                                }
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(59, 130, 246, 0.6)',
+                                'rgba(59, 130, 246, 0.5)',
+                                'rgba(59, 130, 246, 0.4)'
+                            ],
+                            borderColor: [
+                                'rgb(59, 130, 246)',
+                                'rgb(59, 130, 246)',
+                                'rgb(59, 130, 246)',
+                                'rgb(59, 130, 246)',
+                                'rgb(59, 130, 246)'
+                            ],
+                            borderWidth: 1
+                    }]
+                },
+                options: {
+                        indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                            x: {
+                                beginAtZero: true
                             }
                         }
-                    });
-                }
+                    }
+                });
+            }
             }
 
             // Met à jour les données des charts

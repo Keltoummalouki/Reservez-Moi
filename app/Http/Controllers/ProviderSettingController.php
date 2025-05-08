@@ -8,14 +8,12 @@ use Illuminate\Support\Facades\Hash;
 
 class ProviderSettingController extends Controller
 {
-    // Affiche le formulaire des paramètres du compte
     public function index()
     {
         $user = Auth::user();
         return view('provider.settings', compact('user'));
     }
 
-    // Met à jour les paramètres du compte
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -26,14 +24,11 @@ class ProviderSettingController extends Controller
             'address' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
-
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
         unset($data['password']);
-
         $user->update($data);
-
         return redirect()->route('provider.settings')->with('success', 'Paramètres mis à jour avec succès.');
     }
 } 

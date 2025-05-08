@@ -71,10 +71,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasManyThrough(
             \App\Models\Review::class,
             \App\Models\Service::class,
-            'provider_id', // Foreign key on Service table...
-            'service_id',  // Foreign key on Review table...
-            'id',          // Local key on User table...
-            'id'           // Local key on Service table...
+            'provider_id',
+            'service_id',
+            'id',
+            'id'
         );
     }
 }

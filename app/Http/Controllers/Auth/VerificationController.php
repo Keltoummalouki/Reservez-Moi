@@ -77,7 +77,6 @@ class VerificationController extends Controller
         if ($request->user()->hasRole('ServiceProvider')) {
             return redirect()->route('provider.profile.setup');
         }
-        
         return redirect($this->redirectPath())->with('verified', true);
     }
 }

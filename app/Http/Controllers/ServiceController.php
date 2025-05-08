@@ -75,9 +75,8 @@ class ServiceController extends Controller
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'is_available' => 'boolean',
-            'photos.*' => 'image|mimes:jpeg,png,jpg|max:5120', // 5MB max
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:5120',
         ]);
-        try {
             $validated['is_available'] = $request->boolean('is_available');
             $service = new Service($validated);
             $service->provider_id = $user->id;
@@ -95,11 +94,6 @@ class ServiceController extends Controller
             }
             return redirect()->route('provider.services.index')
                 ->with('success', 'Service créé avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Une erreur est survenue lors de la création du service.');
-        }
     }
 
     public function edit(Service $service)
@@ -154,7 +148,6 @@ class ServiceController extends Controller
         }
     }
 
-    // Méthode pour l'admin : suspendre un service
     public function suspend(Service $service)
     {
         $user = auth()->user();

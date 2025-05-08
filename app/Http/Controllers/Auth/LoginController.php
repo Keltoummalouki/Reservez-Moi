@@ -23,17 +23,14 @@ class LoginController extends Controller
     {
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            
-            // Redirection selon le rôle
             return $this->authenticated($request, Auth::user());
         }
 
-        
         return back()->withErrors([
             'email' => 'Les informations sont incorrectes',
         ])->withInput($request->only('email', 'remember'));
