@@ -11,49 +11,36 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Médical',
-                'slug' => 'medical',
-                'description' => 'Services médicaux et paramédicaux'
+                'name' => 'Doctors & Hospitals',
+                'slug' => 'doctors-hospitals',
+                'description' => 'Réservation de consultations médicales et hospitalières.'
             ],
             [
-                'name' => 'Beauté',
-                'slug' => 'beaute',
-                'description' => 'Services de beauté et de bien-être'
+                'name' => 'Services juridiques',
+                'slug' => 'services-juridiques',
+                'description' => 'Prise de rendez-vous avec des avocats ou notaires.'
             ],
             [
-                'name' => 'Coiffure',
-                'slug' => 'coiffure',
-                'description' => 'Services de coiffure et de soin capillaire'
+                'name' => 'Beauty Salon & Spas',
+                'slug' => 'beauty-salon-spas',
+                'description' => 'Planification de soins de beauté et de bien-être.'
             ],
             [
-                'name' => 'Massage',
-                'slug' => 'massage',
-                'description' => 'Services de massage et de relaxation'
+                'name' => 'Services à domicile',
+                'slug' => 'services-a-domicile',
+                'description' => 'Réservation de services à domicile.'
             ],
             [
-                'name' => 'Domicile',
-                'slug' => 'domicile',
-                'description' => 'Services à domicile'
+                'name' => 'Conseils et coaching',
+                'slug' => 'conseils-coaching',
+                'description' => 'Rendez-vous avec coachs ou conseillers.'
             ],
-            [
-                'name' => 'Sport',
-                'slug' => 'sport',
-                'description' => 'Services sportifs et activités physiques'
-            ],
-            [
-                'name' => 'Éducation',
-                'slug' => 'education',
-                'description' => 'Services éducatifs et de formation'
-            ],
-            [
-                'name' => 'Technique',
-                'slug' => 'technique',
-                'description' => 'Services techniques et réparation'
-            ]
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate([
+                'name' => $category['name'],
+            ], $category);
         }
     }
 } 
