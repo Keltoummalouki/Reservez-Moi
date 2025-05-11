@@ -23,10 +23,8 @@ class ReservationService
     {
         $service = $this->serviceRepository->find($serviceId);
         
-        // Utiliser la date actuelle si aucune date n'est fournie
         $reservationDate = $data['reservation_date'] ?? now();
         
-        // Créer la réservation sans vérifier les conflits
         $reservationData = [
             'user_id' => Auth::id(),
             'service_id' => $serviceId,
@@ -39,7 +37,6 @@ class ReservationService
         
         $reservation = $this->reservationRepository->create($reservationData);
         
-        // Envoyer notification
         try {
             $service->provider->notify(new ReservationCreated($reservation));
         } catch (\Exception $e) {

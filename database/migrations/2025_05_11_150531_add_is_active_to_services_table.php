@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnToUsersTable extends Migration
+class AddIsActiveToServicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddColumnToUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('role_id')->default(3)->constrained('roles'); 
+        Schema::table('services', function (Blueprint $table) {
+            $table->boolean('is_active')->default(true);
         });
     }
 
@@ -25,8 +25,8 @@ class AddColumnToUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('services', function (Blueprint $table) {
+            $table->dropColumn('is_active');
         });
     }
 }
