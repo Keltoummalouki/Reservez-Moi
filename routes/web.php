@@ -171,7 +171,7 @@ Route::get('/client/services', [ClientServiceController::class, 'index'])->name(
 Route::get('/client/services/ajax', [ClientServiceController::class, 'ajaxList'])->name('client.services.ajax');
 
 // Routes pour les clients
-Route::middleware(['auth', 'role:Client', 'throttle:10,1'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth', 'role:Client'])->prefix('client')->name('client.')->group(function () {
     // Réservations
     Route::get('/reserve/{service}/form', [ReservationController::class, 'showForm'])->name('reserve.form');
     Route::get('/reserve/{service}/timeslots', [ReservationController::class, 'getTimeSlots'])->name('timeslots');
